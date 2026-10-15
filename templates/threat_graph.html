@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Threat Relationship Graph
+    </title>
+
+    <script
+        src="https://unpkg.com/cytoscape@3.30.2/dist/cytoscape.min.js">
+    </script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+            background: #03111f;
+            color: white;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ====================================================== */
+
+        .header {
+
+            background: #071c31;
+
+            border-bottom:
+                1px solid #123b5c;
+
+            padding:
+                16px 25px;
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
+        }
+
+
+        .brand {
+
+            font-size: 20px;
+
+            font-weight: bold;
+        }
+
+
+        .brand span {
+
+            color: #38bdf8;
+        }
+
+
+        .nav {
+
+            display: flex;
+
+            gap: 22px;
+        }
+
+
+        .nav a {
+
+            color: #8bdcff;
+
+            text-decoration: none;
+
+            font-size: 14px;
+        }
+
+
+        .nav a:hover {
+
+            color: white;
+        }
+
+
+        /* =====================================================
+           PAGE
+        ====================================================== */
+
+        .container {
+
+            max-width: 1600px;
+
+            margin: auto;
+
+            padding: 25px;
+        }
+
+
+        .title {
+
+            font-size: 27px;
+
+            margin-bottom: 6px;
+        }
+
+
+        .subtitle {
+
+            color: #8fa9bd;
+
+            margin-bottom: 20px;
+        }
+
+
+        /* =====================================================
+           TOOLBAR
+        ====================================================== */
+
+        .toolbar {
+
+            background: #071c31;
+
+            border:
+                1px solid #123b5c;
+
+            border-radius: 10px;
+
+            padding: 14px;
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 10px;
+
+            margin-bottom: 18px;
+        }
+
+
+        .toolbar input,
+        .toolbar select {
+
+            background: #03111f;
+
+            border:
+                1px solid #245078;
+
+            color: white;
+
+            padding:
+                10px 12px;
+
+            border-radius: 6px;
+
+            outline: none;
+        }
+
+
+        .toolbar input {
+
+            min-width: 280px;
+        }
+
+
+        .toolbar button {
+
+            background: #0d6efd;
+
+            color: white;
+
+            border: none;
+
+            padding:
+                10px 15px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+        }
+
+
+        .toolbar button:hover {
+
+            background: #0b5ed7;
+        }
+
+
+        /* =====================================================
+           STATS
+        ====================================================== */
+
+        .stats {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    3,
+                    1fr
+                );
+
+            gap: 15px;
+
+            margin-bottom: 18px;
+        }
+
+
+        .stat-card {
+
+            background: #071c31;
+
+            border:
+                1px solid #123b5c;
+
+            border-radius: 10px;
+
+            padding: 17px;
+        }
+
+
+        .stat-label {
+
+            color: #8fa9bd;
+
+            font-size: 12px;
+
+            margin-bottom: 7px;
+        }
+
+
+        .stat-value {
+
+            font-size: 25px;
+
+            font-weight: bold;
+        }
+
+
+        /* =====================================================
+           GRAPH
+        ====================================================== */
+
+        .graph-wrapper {
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1fr)
+                330px;
+
+            gap: 18px;
+        }
+
+
+        #cy {
+
+            width: 100%;
+
+            height: 680px;
+
+            background: #071523;
+
+            border:
+                1px solid #123b5c;
+
+            border-radius: 12px;
+        }
+
+
+        /* =====================================================
+           DETAILS
+        ====================================================== */
+
+        .details {
+
+            background: #071c31;
+
+            border:
+                1px solid #123b5c;
+
+            border-radius: 12px;
+
+            padding: 18px;
+
+            height: 680px;
+
+            overflow-y: auto;
+        }
+
+
+        .details h3 {
+
+            margin-bottom: 18px;
+
+            color: #38bdf8;
+        }
+
+
+        .detail-row {
+
+            border-bottom:
+                1px solid #123b5c;
+
+            padding:
+                11px 0;
+        }
+
+
+        .detail-label {
+
+            color: #8fa9bd;
+
+            font-size: 11px;
+
+            margin-bottom: 4px;
+        }
+
+
+        .detail-value {
+
+            font-size: 13px;
+
+            word-break: break-all;
+        }
+
+
+        /* =====================================================
+           LEGEND
+        ====================================================== */
+
+        .legend {
+
+            display: flex;
+
+            gap: 15px;
+
+            flex-wrap: wrap;
+
+            margin-top: 15px;
+        }
+
+
+        .legend-item {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            color: #b1c4d2;
+
+            font-size: 12px;
+        }
+
+
+        .dot {
+
+            width: 11px;
+
+            height: 11px;
+
+            border-radius: 50%;
+        }
+
+
+        .dot-low {
+            background: #00ff88;
+        }
+
+
+        .dot-medium {
+            background: #ffd700;
+        }
+
+
+        .dot-suspicious {
+            background: #ff8800;
+        }
+
+
+        .dot-high {
+            background: #ff3333;
+        }
+
+
+        .dot-critical {
+            background: #ff00ff;
+        }
+
+
+        .dot-default {
+            background: #38bdf8;
+        }
+
+
+        @media (
+            max-width: 950px
+        ) {
+
+            .graph-wrapper {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .details {
+
+                height: auto;
+            }
+
+
+            .stats {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header class="header">
+
+    <div class="brand">
+
+        OSINT
+        <span>
+            Threat Intelligence
+        </span>
+
+    </div>
+
+
+    <nav class="nav">
+
+        <a href="/">
+            Investigation
+        </a>
+
+        <a href="/dashboard/">
+            Dashboard
+        </a>
+
+        <a href="/history/">
+            History
+        </a>
+
+        <a href="/threat-graph/">
+            Threat Graph
+        </a>
+
+        <a href="/alerts/">
+    🚨 Alerts
+</a>
+
+    </nav>
+
+</header>
+
+
+
+<div class="container">
+
+
+    <h1 class="title">
+
+        🕸️ IOC Threat Relationship Graph
+
+    </h1>
+
+
+    <p class="subtitle">
+
+        Visualize relationships between
+        investigated indicators,
+        domains, IP addresses,
+        ports and vulnerabilities.
+
+    </p>
+
+
+
+    <!-- =====================================================
+         STATS
+    ====================================================== -->
+
+    <div class="stats">
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+
+                GRAPH NODES
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="nodeCount"
+            >
+
+                0
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+
+                RELATIONSHIPS
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="edgeCount"
+            >
+
+                0
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+
+                VISIBLE NODES
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="visibleCount"
+            >
+
+                0
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         TOOLBAR
+    ====================================================== -->
+
+    <div class="toolbar">
+
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search IOC..."
+        >
+
+
+        <select id="typeFilter">
+
+            <option value="">
+                All Types
+            </option>
+
+            <option value="IP Address">
+                IP Address
+            </option>
+
+            <option value="Domain">
+                Domain
+            </option>
+
+            <option value="URL">
+                URL
+            </option>
+
+            <option value="Port">
+                Port
+            </option>
+
+            <option value="Vulnerability">
+                Vulnerability
+            </option>
+
+            <option value="MD5 Hash">
+                MD5 Hash
+            </option>
+
+            <option value="SHA1 Hash">
+                SHA1 Hash
+            </option>
+
+            <option value="SHA256 Hash">
+                SHA256 Hash
+            </option>
+
+        </select>
+
+
+        <select id="riskFilter">
+
+            <option value="">
+                All Risks
+            </option>
+
+            <option value="LOW">
+                LOW
+            </option>
+
+            <option value="MEDIUM">
+                MEDIUM
+            </option>
+
+            <option value="SUSPICIOUS">
+                SUSPICIOUS
+            </option>
+
+            <option value="HIGH">
+                HIGH
+            </option>
+
+            <option value="CRITICAL">
+                CRITICAL
+            </option>
+
+        </select>
+
+
+        <button onclick="applyFilters()">
+
+            Apply
+
+        </button>
+
+
+        <button onclick="resetGraph()">
+
+            Reset
+
+        </button>
+
+
+        <button onclick="fitGraph()">
+
+            Fit Graph
+
+        </button>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         GRAPH + DETAILS
+    ====================================================== -->
+
+    <div class="graph-wrapper">
+
+
+        <div>
+
+            <div id="cy">
+            </div>
+
+
+            <div class="legend">
+
+
+                <div class="legend-item">
+
+                    <div
+                        class="
+                            dot
+                            dot-low
+                        "
+                    ></div>
+
+                    LOW
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <div
+                        class="
+                            dot
+                            dot-medium
+                        "
+                    ></div>
+
+                    MEDIUM
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <div
+                        class="
+                            dot
+                            dot-suspicious
+                        "
+                    ></div>
+
+                    SUSPICIOUS
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <div
+                        class="
+                            dot
+                            dot-high
+                        "
+                    ></div>
+
+                    HIGH
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <div
+                        class="
+                            dot
+                            dot-critical
+                        "
+                    ></div>
+
+                    CRITICAL
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <div
+                        class="
+                            dot
+                            dot-default
+                        "
+                    ></div>
+
+                    Related IOC
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             NODE DETAILS
+        ================================================== -->
+
+        <div class="details">
+
+            <h3>
+
+                Selected IOC
+
+            </h3>
+
+
+            <div id="emptyDetails">
+
+                Click any graph node
+                to inspect the IOC.
+
+            </div>
+
+
+            <div
+                id="nodeDetails"
+                style="display:none;"
+            >
+
+
+                <div class="detail-row">
+
+                    <div class="detail-label">
+                        IOC
+                    </div>
+
+                    <div
+                        class="detail-value"
+                        id="detailIoc"
+                    >
+                    </div>
+
+                </div>
+
+
+                <div class="detail-row">
+
+                    <div class="detail-label">
+                        IOC Type
+                    </div>
+
+                    <div
+                        class="detail-value"
+                        id="detailType"
+                    >
+                    </div>
+
+                </div>
+
+
+                <div class="detail-row">
+
+                    <div class="detail-label">
+                        Risk Score
+                    </div>
+
+                    <div
+                        class="detail-value"
+                        id="detailScore"
+                    >
+                    </div>
+
+                </div>
+
+
+                <div class="detail-row">
+
+                    <div class="detail-label">
+                        Risk Level
+                    </div>
+
+                    <div
+                        class="detail-value"
+                        id="detailRisk"
+                    >
+                    </div>
+
+                </div>
+
+
+                <div class="detail-row">
+
+                    <div class="detail-label">
+                        Connections
+                    </div>
+
+                    <div
+                        class="detail-value"
+                        id="detailConnections"
+                    >
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+
+/* =========================================================
+   FLASK DATA
+========================================================= */
+
+const graphData =
+    {{ graph_data | tojson }};
+
+
+console.log(
+    "Threat Graph:",
+    graphData
+);
+
+
+
+/* =========================================================
+   CYTOSCAPE ELEMENTS
+========================================================= */
+
+const elements = [];
+
+
+graphData.nodes.forEach(
+
+    function(node) {
+
+        elements.push({
+
+            data: {
+
+                id:
+                    node.id,
+
+                label:
+                    node.label,
+
+                ioc_type:
+                    node.ioc_type,
+
+                risk_score:
+                    node.risk_score,
+
+                risk_level:
+                    node.risk_level
+
+            }
+
+        });
+
+    }
+
+);
+
+
+
+graphData.edges.forEach(
+
+    function(edge) {
+
+        elements.push({
+
+            data: {
+
+                id:
+                    edge.id,
+
+                source:
+                    edge.source,
+
+                target:
+                    edge.target,
+
+                relationship:
+                    edge.relationship,
+
+                intel_source:
+                    edge.intel_source
+
+            }
+
+        });
+
+    }
+
+);
+
+
+
+/* =========================================================
+   CREATE GRAPH
+========================================================= */
+
+const cy =
+    cytoscape({
+
+        container:
+            document.getElementById(
+                "cy"
+            ),
+
+        elements:
+            elements,
+
+
+        style: [
+
+
+            {
+
+                selector:
+                    "node",
+
+                style: {
+
+                    "background-color":
+                        "#38bdf8",
+
+                    "label":
+                        "data(label)",
+
+                    "color":
+                        "#ffffff",
+
+                    "font-size":
+                        "10px",
+
+                    "text-wrap":
+                        "wrap",
+
+                    "text-max-width":
+                        "120px",
+
+                    "text-valign":
+                        "bottom",
+
+                    "text-margin-y":
+                        "8px",
+
+                    "width":
+                        30,
+
+                    "height":
+                        30,
+
+                    "border-width":
+                        2,
+
+                    "border-color":
+                        "#ffffff"
+
+                }
+
+            },
+
+
+            {
+
+                selector:
+                    'node[risk_level = "LOW"]',
+
+                style: {
+
+                    "background-color":
+                        "#00ff88"
+
+                }
+
+            },
+
+
+            {
+
+                selector:
+                    'node[risk_level = "MEDIUM"]',
+
+                style: {
+
+                    "background-color":
+                        "#ffd700"
+
+                }
+
+            },
+
+
+            {
+
+                selector:
+                    'node[risk_level = "SUSPICIOUS"]',
+
+                style: {
+
+                    "background-color":
+                        "#ff8800"
+
+                }
+
+            },
+
+
+            {
+
+                selector:
+                    'node[risk_level = "HIGH"]',
+
+                style: {
+
+                    "background-color":
+                        "#ff3333"
+
+                }
+
+            },
+
+
+            {
+
+                selector:
+                    'node[risk_level = "CRITICAL"]',
+
+                style: {
+
+                    "background-color":
+                        "#ff00ff"
+
+                }
+
+            },
+
+
+            {
+
+                selector:
+                    "edge",
+
+                style: {
+
+                    "width":
+                        1.5,
+
+                    "line-color":
+                        "#335c7d",
+
+                    "target-arrow-color":
+                        "#335c7d",
+
+                    "target-arrow-shape":
+                        "triangle",
+
+                    "curve-style":
+                        "bezier",
+
+                    "label":
+                        "data(relationship)",
+
+                    "font-size":
+                        "8px",
+
+                    "color":
+                        "#8fa9bd",
+
+                    "text-background-color":
+                        "#071523",
+
+                    "text-background-opacity":
+                        1,
+
+                    "text-background-padding":
+                        "2px"
+
+                }
+
+            },
+
+
+            {
+
+                selector:
+                    ":selected",
+
+                style: {
+
+                    "border-width":
+                        4,
+
+                    "border-color":
+                        "#ffffff"
+
+                }
+
+            }
+
+        ],
+
+
+        layout: {
+
+            name:
+                "cose",
+
+            animate:
+                true,
+
+            padding:
+                40,
+
+            nodeRepulsion:
+                900000,
+
+            idealEdgeLength:
+                110
+
+        }
+
+    });
+
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+document.getElementById(
+    "nodeCount"
+).textContent =
+    graphData.nodes.length;
+
+
+document.getElementById(
+    "edgeCount"
+).textContent =
+    graphData.edges.length;
+
+
+document.getElementById(
+    "visibleCount"
+).textContent =
+    graphData.nodes.length;
+
+
+
+/* =========================================================
+   CLICK NODE
+========================================================= */
+
+cy.on(
+
+    "tap",
+
+    "node",
+
+    function(event) {
+
+
+        const node =
+            event.target;
+
+
+        const data =
+            node.data();
+
+
+        document.getElementById(
+            "emptyDetails"
+        ).style.display =
+            "none";
+
+
+        document.getElementById(
+            "nodeDetails"
+        ).style.display =
+            "block";
+
+
+        document.getElementById(
+            "detailIoc"
+        ).textContent =
+            data.label;
+
+
+        document.getElementById(
+            "detailType"
+        ).textContent =
+            data.ioc_type;
+
+
+        document.getElementById(
+            "detailScore"
+        ).textContent =
+            data.risk_score + "/100";
+
+
+        document.getElementById(
+            "detailRisk"
+        ).textContent =
+            data.risk_level;
+
+
+        document.getElementById(
+            "detailConnections"
+        ).textContent =
+            node.connectedEdges().length;
+
+    }
+
+);
+
+
+
+/* =========================================================
+   FILTER GRAPH
+========================================================= */
+
+function applyFilters() {
+
+
+    const search =
+        document
+        .getElementById(
+            "searchInput"
+        )
+        .value
+        .toLowerCase()
+        .trim();
+
+
+    const type =
+        document
+        .getElementById(
+            "typeFilter"
+        )
+        .value;
+
+
+    const risk =
+        document
+        .getElementById(
+            "riskFilter"
+        )
+        .value;
+
+
+    let visible =
+        0;
+
+
+    cy.nodes().forEach(
+
+        function(node) {
+
+
+            const data =
+                node.data();
+
+
+            const matchSearch =
+                !search
+                ||
+                String(
+                    data.label
+                )
+                .toLowerCase()
+                .includes(
+                    search
+                );
+
+
+            const matchType =
+                !type
+                ||
+                data.ioc_type
+                === type;
+
+
+            const matchRisk =
+                !risk
+                ||
+                data.risk_level
+                === risk;
+
+
+            if (
+                matchSearch
+                &&
+                matchType
+                &&
+                matchRisk
+            ) {
+
+                node.show();
+
+                visible++;
+
+            }
+
+            else {
+
+                node.hide();
+
+            }
+
+        }
+
+    );
+
+
+    cy.edges().forEach(
+
+        function(edge) {
+
+
+            if (
+                edge.source().visible()
+                &&
+                edge.target().visible()
+            ) {
+
+                edge.show();
+
+            }
+
+            else {
+
+                edge.hide();
+
+            }
+
+        }
+
+    );
+
+
+    document.getElementById(
+        "visibleCount"
+    ).textContent =
+        visible;
+
+
+    cy.layout({
+
+        name:
+            "cose",
+
+        animate:
+            true,
+
+        padding:
+            40
+
+    }).run();
+
+}
+
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetGraph() {
+
+
+    document.getElementById(
+        "searchInput"
+    ).value =
+        "";
+
+
+    document.getElementById(
+        "typeFilter"
+    ).value =
+        "";
+
+
+    document.getElementById(
+        "riskFilter"
+    ).value =
+        "";
+
+
+    cy.elements().show();
+
+
+    document.getElementById(
+        "visibleCount"
+    ).textContent =
+        graphData.nodes.length;
+
+
+    cy.layout({
+
+        name:
+            "cose",
+
+        animate:
+            true,
+
+        padding:
+            40
+
+    }).run();
+
+}
+
+
+
+/* =========================================================
+   FIT GRAPH
+========================================================= */
+
+function fitGraph() {
+
+    cy.fit(
+        cy.elements(":visible"),
+        40
+    );
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>

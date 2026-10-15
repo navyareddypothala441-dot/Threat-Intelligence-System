@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+         Threat Intelligence System
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+
+<body class="home-page">
+
+
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
+
+<header class="top-navbar">
+
+
+    <div class="logo-area">
+
+        <div class="logo-icon">
+            🛡
+        </div>
+
+        <div class="logo-text">
+
+            
+
+            <p>
+                THREAT INTELLIGENCE
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <nav class="main-nav">
+
+        <a
+            href="/"
+            class="active"
+        >
+            Home
+        </a>
+
+        <a href="#ioc-section">
+            🔍 IOC Investigation
+        </a>
+
+        <a href="/dashboard/">
+            Dashboard
+        </a>
+
+        <a href="/threat-graph/">
+            Threat Intel
+        </a>
+
+        <a href="/watchlist/">
+            Watchlist
+        </a>
+
+        <a href="/alerts/">
+            Alerts
+        </a>
+
+
+        {% if session.get('role') == 'ADMIN' %}
+
+        <a href="/admin/users">
+            Admin
+        </a>
+
+        {% endif %}
+
+    </nav>
+
+
+
+    <div class="nav-right">
+
+        {% if session.get('user_id') %}
+
+            <a
+                href="/auth/logout"
+                class="signin-btn"
+            >
+                👤 Logout
+            </a>
+
+        {% else %}
+
+            <a
+                href="/auth/login"
+                class="signin-btn"
+            >
+                👤 Sign In
+            </a>
+
+        {% endif %}
+
+    </div>
+
+
+</header>
+
+
+
+<!-- =========================================================
+     HERO
+========================================================= -->
+
+<section class="hero-wrapper">
+
+
+    <div class="hero-left">
+
+
+        <h1 class="hero-title">
+
+           
+
+            Threat Intelligence System
+
+        </h1>
+
+
+        <p class="hero-subtitle">
+
+            AI-Driven Cyber Threat Intelligence
+            & IOC Investigation
+
+        </p>
+
+
+
+        <div class="hero-features">
+
+
+            <div class="hero-feature">
+
+                <div class="feature-symbol">
+                    🧠
+                </div>
+
+                <div>
+                    AI-Powered
+                    <br>
+                    Analysis
+                </div>
+
+            </div>
+
+
+
+            <div class="hero-feature">
+
+                <div class="feature-symbol">
+                    🗄
+                </div>
+
+                <div>
+                    Multi-Source
+                    <br>
+                    Intelligence
+                </div>
+
+            </div>
+
+
+
+            <div class="hero-feature">
+
+                <div class="feature-symbol">
+                    🛡
+                </div>
+
+                <div>
+                    Actionable
+                    <br>
+                    Threat Insights
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         RIGHT SIDE ACTIVITY
+    ====================================================== -->
+
+    <div class="hero-right">
+
+
+        <div class="threat-activity-card">
+
+
+            <div class="threat-card-title">
+
+                🌐 GLOBAL THREAT ACTIVITY
+
+            </div>
+
+
+
+            <div class="threat-item">
+
+                <div class="threat-name">
+
+                    <span class="dot red"></span>
+
+                    Malicious IPs
+
+                </div>
+
+                <strong>
+                    12,428
+                </strong>
+
+            </div>
+
+
+
+            <div class="threat-item">
+
+                <div class="threat-name">
+
+                    <span class="dot red"></span>
+
+                    Malicious Domains
+
+                </div>
+
+                <strong>
+                    8,317
+                </strong>
+
+            </div>
+
+
+
+            <div class="threat-item">
+
+                <div class="threat-name">
+
+                    <span class="dot orange"></span>
+
+                    Malware Hashes
+
+                </div>
+
+                <strong>
+                    5,921
+                </strong>
+
+            </div>
+
+
+
+            <div class="threat-item">
+
+                <div class="threat-name">
+
+                    <span class="dot cyan"></span>
+
+                    Active Campaigns
+
+                </div>
+
+                <strong>
+                    1,204
+                </strong>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     IOC INVESTIGATION
+========================================================= -->
+
+<section
+    id="ioc-section"
+    class="ioc-main-section"
+>
+
+
+    <div class="ioc-box">
+
+
+        <div class="ioc-header">
+
+
+            <div class="ioc-icon">
+                🔎
+            </div>
+
+
+            <div>
+
+                <h2>
+                    IOC Investigation
+                </h2>
+
+                <p>
+
+                    Analyze IP addresses,
+                    domains, URLs or file hashes
+                    with AI-powered threat intelligence.
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+
+        <form
+            method="POST"
+            action="/investigate"
+            class="ioc-form"
+        >
+
+
+            <div class="ioc-input-wrapper">
+
+
+                <span class="ioc-input-icon">
+                    🔗
+                </span>
+
+
+                <input
+                    type="text"
+                    name="ioc"
+                    placeholder="Enter IP, Domain, URL or File Hash (MD5, SHA1, SHA256)"
+                    required
+                    autocomplete="off"
+                >
+
+
+            </div>
+
+
+
+            <button
+                type="submit"
+                class="investigate-btn"
+            >
+
+                🔍 Investigate IOC
+                <span>→</span>
+
+            </button>
+
+
+        </form>
+
+
+    </div>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     FEATURE CARDS
+========================================================= -->
+
+<section class="info-cards-section">
+
+
+    <div class="info-card">
+
+        <div class="card-icon">
+            🌐
+        </div>
+
+        <div>
+
+            <h3>
+                IP Analysis
+            </h3>
+
+            <p>
+
+                Check reputation,
+                geolocation, ASN and
+                associated threats.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="info-card">
+
+        <div class="card-icon">
+            🔗
+        </div>
+
+        <div>
+
+            <h3>
+                Domain & URL Lookup
+            </h3>
+
+            <p>
+
+                Identify malicious domains,
+                phishing URLs and related
+                infrastructure.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="info-card">
+
+        <div class="card-icon">
+            📄
+        </div>
+
+        <div>
+
+            <h3>
+                File Hash Investigation
+            </h3>
+
+            <p>
+
+                Detect malware,
+                file reputation and
+                related threat samples.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="info-card">
+
+        <div class="card-icon">
+            🕸
+        </div>
+
+        <div>
+
+            <h3>
+                Enriched Intelligence
+            </h3>
+
+            <p>
+
+                Correlate information
+                from multiple OSINT
+                intelligence sources.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+</body>
+
+</html>

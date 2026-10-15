@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Admin User Management
+    </title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+
+            background: #03111f;
+            color: white;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            min-height: 100vh;
+        }
+
+
+        .header {
+
+            background: #071c31;
+
+            border-bottom:
+                1px solid #123b5c;
+
+            padding:
+                16px 25px;
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
+            flex-wrap: wrap;
+
+            gap: 15px;
+        }
+
+
+        .brand {
+
+            font-size: 20px;
+
+            font-weight: bold;
+        }
+
+
+        .nav {
+
+            display: flex;
+
+            gap: 18px;
+
+            flex-wrap: wrap;
+        }
+
+
+        .nav a {
+
+            color: #8bdcff;
+
+            text-decoration: none;
+
+            font-size: 13px;
+        }
+
+
+        .container {
+
+            max-width: 1400px;
+
+            margin: auto;
+
+            padding:
+                28px 20px;
+        }
+
+
+        h1 {
+
+            margin-bottom: 5px;
+        }
+
+
+        .subtitle {
+
+            color: #8fa9bd;
+
+            font-size: 13px;
+
+            margin-bottom: 25px;
+        }
+
+
+        .table-wrapper {
+
+            overflow-x: auto;
+
+            background: #071c31;
+
+            border:
+                1px solid #123b5c;
+
+            border-radius: 10px;
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 900px;
+        }
+
+
+        th {
+
+            background: #0a263f;
+
+            color: #8bdcff;
+
+            padding: 13px;
+
+            text-align: left;
+
+            font-size: 12px;
+        }
+
+
+        td {
+
+            padding: 13px;
+
+            border-top:
+                1px solid #123b5c;
+
+            font-size: 12px;
+        }
+
+
+        .role {
+
+            font-weight: bold;
+        }
+
+
+        .status {
+
+            padding:
+                5px 9px;
+
+            border-radius: 15px;
+
+            font-size: 10px;
+
+            font-weight: bold;
+        }
+
+
+        .active {
+
+            background: #14532d;
+
+            color: #bbf7d0;
+        }
+
+
+        .disabled {
+
+            background: #7f1d1d;
+
+            color: #fecaca;
+        }
+
+
+        form {
+
+            display: inline-block;
+
+            margin-right: 5px;
+        }
+
+
+        button {
+
+            border: none;
+
+            color: white;
+
+            padding:
+                7px 10px;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            font-size: 10px;
+        }
+
+
+        .admin-btn {
+
+            background: #7c3aed;
+        }
+
+
+        .analyst-btn {
+
+            background: #2563eb;
+        }
+
+
+        .status-btn {
+
+            background: #dc2626;
+        }
+
+
+        .activate-btn {
+
+            background: #059669;
+        }
+
+
+        .current-user {
+
+            color: #fbbf24;
+
+            font-weight: bold;
+        }
+
+
+        .empty {
+
+            padding: 40px;
+
+            text-align: center;
+
+            color: #8fa9bd;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header class="header">
+
+
+    <div class="brand">
+
+        🛡️ OSINT Threat Intelligence
+
+    </div>
+
+
+    <nav class="nav">
+
+        <a href="/">
+            Investigation
+        </a>
+
+        <a href="/dashboard/">
+            Dashboard
+        </a>
+
+        <a href="/history/">
+            History
+        </a>
+
+        <a href="/threat-graph/">
+            Threat Graph
+        </a>
+
+        <a href="/watchlist/">
+            Watchlist
+        </a>
+
+        <a href="/alerts/">
+            Alerts
+        </a>
+
+        <a href="/admin/users">
+            👥 Admin Users
+        </a>
+
+        <a href="/auth/logout">
+            🚪 Logout
+        </a>
+
+    </nav>
+
+
+</header>
+
+
+
+<div class="container">
+
+
+    <h1>
+        👥 User Management
+    </h1>
+
+
+    <p class="subtitle">
+
+        Logged in as:
+        {{ session.get('username') }}
+        |
+        Role:
+        {{ session.get('role') }}
+
+    </p>
+
+
+
+    {% if users %}
+
+
+    <div class="table-wrapper">
+
+
+        <table>
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        ID
+                    </th>
+
+                    <th>
+                        Username
+                    </th>
+
+                    <th>
+                        Email
+                    </th>
+
+                    <th>
+                        Role
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Created
+                    </th>
+
+                    <th>
+                        Actions
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for user in users %}
+
+
+                <tr>
+
+
+                    <td>
+                        {{ user.id }}
+                    </td>
+
+
+                    <td>
+
+                        {{ user.username }}
+
+                        {% if
+                            user.id ==
+                            session.get('user_id')
+                        %}
+
+                            <span class="current-user">
+                                (You)
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+                        {{ user.email }}
+                    </td>
+
+
+                    <td class="role">
+                        {{ user.role }}
+                    </td>
+
+
+                    <td>
+
+                        <span
+                            class="
+                                status
+
+                                {% if
+                                    user.status ==
+                                    'ACTIVE'
+                                %}
+
+                                    active
+
+                                {% else %}
+
+                                    disabled
+
+                                {% endif %}
+                            "
+                        >
+
+                            {{ user.status }}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+                        {{ user.created_at }}
+                    </td>
+
+
+                    <td>
+
+
+                        {% if user.role != 'ADMIN' %}
+
+                        <form
+                            method="POST"
+                            action="/admin/role/{{ user.id }}"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="role"
+                                value="ADMIN"
+                            >
+
+                            <button
+                                class="admin-btn"
+                            >
+                                Make Admin
+                            </button>
+
+                        </form>
+
+                        {% else %}
+
+                        <form
+                            method="POST"
+                            action="/admin/role/{{ user.id }}"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="role"
+                                value="ANALYST"
+                            >
+
+                            <button
+                                class="analyst-btn"
+                            >
+                                Make Analyst
+                            </button>
+
+                        </form>
+
+                        {% endif %}
+
+
+
+                        {% if
+                            user.status ==
+                            'ACTIVE'
+                        %}
+
+                        <form
+                            method="POST"
+                            action="/admin/status/{{ user.id }}"
+                        >
+
+                            <button
+                                class="status-btn"
+                            >
+                                Disable
+                            </button>
+
+                        </form>
+
+                        {% else %}
+
+                        <form
+                            method="POST"
+                            action="/admin/status/{{ user.id }}"
+                        >
+
+                            <button
+                                class="activate-btn"
+                            >
+                                Activate
+                            </button>
+
+                        </form>
+
+                        {% endif %}
+
+
+                    </td>
+
+
+                </tr>
+
+
+                {% endfor %}
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+    {% else %}
+
+
+        <div class="empty">
+
+            No users found.
+
+        </div>
+
+
+    {% endif %}
+
+
+</div>
+
+
+</body>
+
+</html>

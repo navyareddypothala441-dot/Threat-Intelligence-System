@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Investigation History
+    </title>
+
+    <a href="/threat-graph/">
+    🕸️ Threat Graph
+</a>
+    <a href="/alerts/">
+    🚨 Alerts
+</a>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                #f4f7fb;
+
+            color:
+                #101828;
+
+            min-height:
+                100vh;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ====================================================== */
+
+        .top-header {
+
+            background:
+                #101828;
+
+            color:
+                #ffffff;
+
+            padding:
+                18px 28px;
+
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
+            position:
+                relative;
+
+            z-index:
+                9999;
+        }
+
+
+        .brand {
+
+            font-size:
+                21px;
+
+            font-weight:
+                bold;
+        }
+
+
+        .nav {
+
+            display:
+                flex;
+
+            gap:
+                22px;
+        }
+
+
+        .nav a {
+
+            color:
+                #ffffff;
+
+            text-decoration:
+                none;
+
+            font-size:
+                14px;
+
+            cursor:
+                pointer;
+        }
+
+
+        .nav a:hover {
+
+            color:
+                #5bbcff;
+        }
+
+
+        /* =====================================================
+           PAGE
+        ====================================================== */
+
+        .container {
+
+            max-width:
+                1450px;
+
+            margin:
+                30px auto;
+
+            padding:
+                0 20px 40px;
+        }
+
+
+        .page-title {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                10px;
+
+            font-size:
+                31px;
+
+            font-weight:
+                bold;
+
+            margin-bottom:
+                7px;
+        }
+
+
+        .subtitle {
+
+            color:
+                #667085;
+
+            font-size:
+                14px;
+
+            margin-bottom:
+                25px;
+        }
+
+
+        /* =====================================================
+           STATS
+        ====================================================== */
+
+        .stats-grid {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(
+                    3,
+                    1fr
+                );
+
+            gap:
+                18px;
+
+            margin-bottom:
+                25px;
+        }
+
+
+        .stat-card {
+
+            background:
+                #ffffff;
+
+            border:
+                1px solid #e2e8f0;
+
+            border-radius:
+                11px;
+
+            padding:
+                22px;
+
+            box-shadow:
+                0 2px 7px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.06
+                );
+        }
+
+
+        .stat-label {
+
+            color:
+                #475467;
+
+            font-size:
+                13px;
+
+            font-weight:
+                600;
+
+            margin-bottom:
+                8px;
+        }
+
+
+        .stat-value {
+
+            font-size:
+                29px;
+
+            font-weight:
+                bold;
+        }
+
+
+        /* =====================================================
+           FILTERS
+        ====================================================== */
+
+        .filter-card {
+
+            background:
+                #ffffff;
+
+            border:
+                1px solid #e2e8f0;
+
+            border-radius:
+                11px;
+
+            padding:
+                18px;
+
+            margin-bottom:
+                24px;
+
+            box-shadow:
+                0 2px 7px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.05
+                );
+        }
+
+
+        .filter-grid {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                2fr 1fr 1fr auto;
+
+            gap:
+                12px;
+        }
+
+
+        .filter-input,
+        .filter-select {
+
+            width:
+                100%;
+
+            height:
+                44px;
+
+            padding:
+                0 14px;
+
+            border:
+                1px solid #d0d5dd;
+
+            border-radius:
+                7px;
+
+            font-size:
+                14px;
+
+            outline:
+                none;
+
+            background:
+                #ffffff;
+        }
+
+
+        .filter-input:focus,
+        .filter-select:focus {
+
+            border-color:
+                #2563eb;
+
+            box-shadow:
+                0 0 0 2px
+                rgba(
+                    37,
+                    99,
+                    235,
+                    0.12
+                );
+        }
+
+
+        .reset-button {
+
+            height:
+                44px;
+
+            padding:
+                0 22px;
+
+            background:
+                #2563eb;
+
+            color:
+                #ffffff;
+
+            border:
+                none;
+
+            border-radius:
+                7px;
+
+            font-size:
+                14px;
+
+            cursor:
+                pointer;
+        }
+
+
+        .reset-button:hover {
+
+            background:
+                #1d4ed8;
+        }
+
+
+        /* =====================================================
+           TABLE
+        ====================================================== */
+
+        .table-card {
+
+            background:
+                #ffffff;
+
+            border:
+                1px solid #e2e8f0;
+
+            border-radius:
+                11px;
+
+            overflow:
+                hidden;
+
+            box-shadow:
+                0 2px 7px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.05
+                );
+        }
+
+
+        .table-wrapper {
+
+            overflow-x:
+                auto;
+        }
+
+
+        table {
+
+            width:
+                100%;
+
+            border-collapse:
+                collapse;
+
+            min-width:
+                1100px;
+        }
+
+
+        thead {
+
+            background:
+                #101828;
+
+            color:
+                #ffffff;
+        }
+
+
+        th {
+
+            text-align:
+                left;
+
+            padding:
+                14px 13px;
+
+            font-size:
+                12px;
+
+            white-space:
+                nowrap;
+        }
+
+
+        td {
+
+            padding:
+                14px 13px;
+
+            border-bottom:
+                1px solid #e8edf3;
+
+            font-size:
+                12px;
+
+            vertical-align:
+                middle;
+        }
+
+
+        tbody tr:hover {
+
+            background:
+                #f8fafc;
+        }
+
+
+        .ioc-value {
+
+            color:
+                #0066cc;
+
+            font-weight:
+                600;
+
+            word-break:
+                break-all;
+        }
+
+
+        /* =====================================================
+           IOC TYPE BADGES
+        ====================================================== */
+
+        .type-badge {
+
+            display:
+                inline-block;
+
+            padding:
+                5px 8px;
+
+            border-radius:
+                5px;
+
+            font-size:
+                10px;
+
+            font-weight:
+                bold;
+
+            background:
+                #eef2ff;
+
+            color:
+                #3730a3;
+        }
+
+
+        /* =====================================================
+           RISK BADGES
+        ====================================================== */
+
+        .risk-badge {
+
+            display:
+                inline-block;
+
+            min-width:
+                72px;
+
+            text-align:
+                center;
+
+            padding:
+                6px 9px;
+
+            border-radius:
+                15px;
+
+            font-size:
+                10px;
+
+            font-weight:
+                bold;
+        }
+
+
+        .risk-low {
+
+            background:
+                #dcfce7;
+
+            color:
+                #15803d;
+        }
+
+
+        .risk-medium {
+
+            background:
+                #fef9c3;
+
+            color:
+                #a16207;
+        }
+
+
+        .risk-suspicious {
+
+            background:
+                #ffedd5;
+
+            color:
+                #c2410c;
+        }
+
+
+        .risk-high {
+
+            background:
+                #fee2e2;
+
+            color:
+                #dc2626;
+        }
+
+
+        .risk-critical {
+
+            background:
+                #fce7f3;
+
+            color:
+                #be185d;
+        }
+
+
+        .risk-unknown {
+
+            background:
+                #e5e7eb;
+
+            color:
+                #344054;
+        }
+
+
+        /* =====================================================
+           VIEW BUTTON
+        ====================================================== */
+
+        .view-button {
+
+            display:
+                inline-block;
+
+            background:
+                #344054;
+
+            color:
+                #ffffff;
+
+            text-decoration:
+                none;
+
+            border-radius:
+                5px;
+
+            padding:
+                7px 12px;
+
+            font-size:
+                11px;
+        }
+
+
+        .view-button:hover {
+
+            background:
+                #1d2939;
+        }
+
+
+        /* =====================================================
+           EMPTY
+        ====================================================== */
+
+        .empty {
+
+            text-align:
+                center;
+
+            padding:
+                35px;
+
+            color:
+                #667085;
+
+            font-size:
+                14px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ====================================================== */
+
+        @media (
+            max-width: 900px
+        ) {
+
+            .stats-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .filter-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .reset-button {
+
+                width:
+                    100%;
+            }
+
+        }
+
+
+        @media (
+            max-width: 600px
+        ) {
+
+            .top-header {
+
+                flex-direction:
+                    column;
+
+                gap:
+                    15px;
+            }
+
+
+            .container {
+
+                padding:
+                    0 12px 30px;
+            }
+
+
+            .page-title {
+
+                font-size:
+                    25px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+
+<body>
+
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header class="top-header">
+
+    <div class="brand">
+
+        🛡️ OSINT Threat Intelligence
+
+    </div>
+
+
+    <nav class="nav">
+
+        <a href="/">
+            🏠 Home
+        </a>
+
+        <a href="/dashboard/">
+            🌍 Dashboard
+        </a>
+
+        <a href="/history/">
+            📜 History
+        </a>
+
+    </nav>
+
+</header>
+
+
+
+<!-- =========================================================
+     PAGE
+========================================================= -->
+
+<div class="container">
+
+
+    <div class="page-title">
+
+        📜 Investigation History
+
+    </div>
+
+
+    <div class="subtitle">
+
+        View and filter previously investigated
+        Indicators of Compromise.
+
+    </div>
+
+
+
+    <!-- =====================================================
+         STATISTICS
+    ====================================================== -->
+
+    <div class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+
+                Total Investigations
+
+            </div>
+
+
+            <div
+                class="stat-value"
+                id="totalCount"
+            >
+
+                {{ investigations | length }}
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+
+                Visible Results
+
+            </div>
+
+
+            <div
+                class="stat-value"
+                id="visibleCount"
+            >
+
+                {{ investigations | length }}
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+
+                High / Critical
+
+            </div>
+
+
+            <div
+                class="stat-value"
+                id="highCriticalCount"
+            >
+
+                0
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         FILTERS
+    ====================================================== -->
+
+    <div class="filter-card">
+
+
+        <div class="filter-grid">
+
+
+            <input
+                type="text"
+                id="searchInput"
+                class="filter-input"
+                placeholder="🔎 Search IOC, country, region, city..."
+            >
+
+
+            <select
+                id="typeFilter"
+                class="filter-select"
+            >
+
+                <option value="">
+                    All IOC Types
+                </option>
+
+                <option value="IP Address">
+                    IP Address
+                </option>
+
+                <option value="Domain">
+                    Domain
+                </option>
+
+                <option value="URL">
+                    URL
+                </option>
+
+                <option value="MD5 Hash">
+                    MD5 Hash
+                </option>
+
+                <option value="SHA1 Hash">
+                    SHA1 Hash
+                </option>
+
+                <option value="SHA256 Hash">
+                    SHA256 Hash
+                </option>
+
+            </select>
+
+
+            <select
+                id="riskFilter"
+                class="filter-select"
+            >
+
+                <option value="">
+                    All Risk Levels
+                </option>
+
+                <option value="LOW">
+                    LOW
+                </option>
+
+                <option value="MEDIUM">
+                    MEDIUM
+                </option>
+
+                <option value="SUSPICIOUS">
+                    SUSPICIOUS
+                </option>
+
+                <option value="HIGH">
+                    HIGH
+                </option>
+
+                <option value="CRITICAL">
+                    CRITICAL
+                </option>
+
+            </select>
+
+
+            <button
+                type="button"
+                class="reset-button"
+                onclick="resetFilters()"
+            >
+
+                Reset
+
+            </button>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         HISTORY TABLE
+    ====================================================== -->
+
+    <div class="table-card">
+
+
+        <div class="table-wrapper">
+
+
+            <table id="historyTable">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            #
+                        </th>
+
+                        <th>
+                            IOC
+                        </th>
+
+                        <th>
+                            Type
+                        </th>
+
+                        <th>
+                            Country
+                        </th>
+
+                        <th>
+                            Region
+                        </th>
+
+                        <th>
+                            City
+                        </th>
+
+                        <th>
+                            Risk Score
+                        </th>
+
+                        <th>
+                            Risk Level
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="historyBody">
+
+
+                {% if investigations %}
+
+
+                    {% for item in investigations %}
+
+
+                    {% set risk =
+                        (
+                            item.get(
+                                'risk_level'
+                            )
+                            or
+                            'UNKNOWN'
+                        )
+                        | upper
+                    %}
+
+
+                    <tr
+                        class="history-row"
+
+                        data-ioc="{{ item.get('ioc', '') }}"
+
+                        data-type="{{ item.get('ioc_type', '') }}"
+
+                        data-country="{{ item.get('country', '') }}"
+
+                        data-region="{{ item.get('region', '') }}"
+
+                        data-city="{{ item.get('city', '') }}"
+
+                        data-risk="{{ risk }}"
+                    >
+
+
+                        <td>
+
+                            {{ loop.index }}
+
+                        </td>
+
+
+                        <td class="ioc-value">
+
+                            {{
+                                item.get(
+                                    'ioc'
+                                )
+                                or
+                                'N/A'
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="type-badge">
+
+                                {{
+                                    item.get(
+                                        'ioc_type'
+                                    )
+                                    or
+                                    'Unknown'
+                                }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.get(
+                                    'country'
+                                )
+                                or
+                                'N/A'
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.get(
+                                    'region'
+                                )
+                                or
+                                'N/A'
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.get(
+                                    'city'
+                                )
+                                or
+                                'N/A'
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if
+                                item.get(
+                                    'risk_score'
+                                )
+                                is not none
+                            %}
+
+                                {{
+                                    item.get(
+                                        'risk_score'
+                                    )
+                                }}/100
+
+                            {% else %}
+
+                                N/A
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="
+                                    risk-badge
+                                    risk-{{ risk | lower }}
+                                "
+                            >
+
+                                {{ risk }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.get(
+                                    'created_at'
+                                )
+                                or
+                                'N/A'
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            <a
+                                href="/"
+                                class="view-button"
+                            >
+
+                                View
+
+                            </a>
+
+                        </td>
+
+
+                    </tr>
+
+
+                    {% endfor %}
+
+
+                {% endif %}
+
+
+                </tbody>
+
+            </table>
+
+
+            {% if not investigations %}
+
+                <div class="empty">
+
+                    No investigation history available.
+
+                </div>
+
+            {% endif %}
+
+
+            <div
+                class="empty"
+                id="noResults"
+                style="display:none;"
+            >
+
+                No matching investigations found.
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT FILTERING
+========================================================= -->
+
+<script>
+
+
+const searchInput =
+    document.getElementById(
+        "searchInput"
+    );
+
+
+const typeFilter =
+    document.getElementById(
+        "typeFilter"
+    );
+
+
+const riskFilter =
+    document.getElementById(
+        "riskFilter"
+    );
+
+
+const visibleCount =
+    document.getElementById(
+        "visibleCount"
+    );
+
+
+const highCriticalCount =
+    document.getElementById(
+        "highCriticalCount"
+    );
+
+
+const noResults =
+    document.getElementById(
+        "noResults"
+    );
+
+
+function filterHistory() {
+
+
+    const searchValue =
+        searchInput.value
+        .toLowerCase()
+        .trim();
+
+
+    const selectedType =
+        typeFilter.value
+        .toLowerCase();
+
+
+    const selectedRisk =
+        riskFilter.value
+        .toUpperCase();
+
+
+    const rows =
+        document.querySelectorAll(
+            ".history-row"
+        );
+
+
+    let visible =
+        0;
+
+
+    let highCritical =
+        0;
+
+
+    rows.forEach(
+
+        function(row) {
+
+
+            const ioc =
+                (
+                    row.dataset.ioc
+                    || ""
+                ).toLowerCase();
+
+
+            const type =
+                (
+                    row.dataset.type
+                    || ""
+                ).toLowerCase();
+
+
+            const country =
+                (
+                    row.dataset.country
+                    || ""
+                ).toLowerCase();
+
+
+            const region =
+                (
+                    row.dataset.region
+                    || ""
+                ).toLowerCase();
+
+
+            const city =
+                (
+                    row.dataset.city
+                    || ""
+                ).toLowerCase();
+
+
+            const risk =
+                (
+                    row.dataset.risk
+                    || ""
+                ).toUpperCase();
+
+
+            const searchableText =
+                `${ioc}
+                 ${type}
+                 ${country}
+                 ${region}
+                 ${city}`;
+
+
+            const matchesSearch =
+                !searchValue
+                ||
+                searchableText.includes(
+                    searchValue
+                );
+
+
+            const matchesType =
+                !selectedType
+                ||
+                type === selectedType;
+
+
+            const matchesRisk =
+                !selectedRisk
+                ||
+                risk === selectedRisk;
+
+
+            const shouldShow =
+                matchesSearch
+                &&
+                matchesType
+                &&
+                matchesRisk;
+
+
+            if (
+                shouldShow
+            ) {
+
+                row.style.display =
+                    "";
+
+                visible++;
+
+
+                if (
+                    risk === "HIGH"
+                    ||
+                    risk === "CRITICAL"
+                ) {
+
+                    highCritical++;
+
+                }
+
+            }
+
+            else {
+
+                row.style.display =
+                    "none";
+
+            }
+
+        }
+
+    );
+
+
+    visibleCount.textContent =
+        visible;
+
+
+    highCriticalCount.textContent =
+        highCritical;
+
+
+    if (
+        visible === 0
+    ) {
+
+        noResults.style.display =
+            "block";
+
+    }
+
+    else {
+
+        noResults.style.display =
+            "none";
+
+    }
+
+}
+
+
+
+function resetFilters() {
+
+
+    searchInput.value =
+        "";
+
+
+    typeFilter.value =
+        "";
+
+
+    riskFilter.value =
+        "";
+
+
+    filterHistory();
+
+}
+
+
+
+searchInput.addEventListener(
+    "input",
+    filterHistory
+);
+
+
+typeFilter.addEventListener(
+    "change",
+    filterHistory
+);
+
+
+riskFilter.addEventListener(
+    "change",
+    filterHistory
+);
+
+
+/* Initial count */
+
+filterHistory();
+
+
+</script>
+
+
+</body>
+
+</html>

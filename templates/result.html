@@ -1,0 +1,3218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>IOC Investigation Result</title>
+
+
+    <!-- Leaflet CSS -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+
+    <!-- Leaflet JS -->
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    ></script>
+
+
+    <style>
+
+        /* =========================================================
+           GLOBAL
+        ========================================================= */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+
+            min-height: 100vh;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            color: #eaf7ff;
+
+            background:
+                linear-gradient(
+                    rgba(2, 10, 20, 0.72),
+                    rgba(2, 10, 20, 0.88)
+                ),
+                url("/static/images/cyber-bg.png");
+
+            background-size: cover;
+
+            background-position: center;
+
+            background-attachment: fixed;
+
+            overflow-x: hidden;
+
+            position: relative;
+        }
+
+
+        body::before {
+
+            content: "";
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+
+                radial-gradient(
+                    circle at 18% 20%,
+                    rgba(34, 211, 238, 0.10),
+                    transparent 32%
+                ),
+
+                radial-gradient(
+                    circle at 82% 35%,
+                    rgba(37, 99, 235, 0.10),
+                    transparent 35%
+                );
+
+            pointer-events: none;
+
+            z-index: -1;
+        }
+
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        .top-header {
+
+            background:
+                rgba(
+                    3,
+                    14,
+                    28,
+                    0.92
+                );
+
+            color: #ffffff;
+
+            padding:
+                18px 28px;
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
+            flex-wrap:
+                wrap;
+
+            gap: 15px;
+
+            border-bottom:
+                1px solid
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.25
+                );
+
+            backdrop-filter:
+                blur(12px);
+
+            position:
+                sticky;
+
+            top:
+                0;
+
+            z-index:
+                1000;
+        }
+
+
+        .brand {
+
+            font-size:
+                21px;
+
+            font-weight:
+                bold;
+
+            color:
+                #ffffff;
+        }
+
+
+        .nav {
+
+            display:
+                flex;
+
+            gap:
+                20px;
+
+            flex-wrap:
+                wrap;
+
+            align-items:
+                center;
+        }
+
+
+        .nav a {
+
+            color:
+                #d7f6ff;
+
+            text-decoration:
+                none;
+
+            font-size:
+                14px;
+
+            transition:
+                0.25s;
+        }
+
+
+        .nav a:hover {
+
+            color:
+                #22d3ee;
+
+            text-shadow:
+                0 0 10px
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.55
+                );
+        }
+
+
+        /* =========================================================
+           PAGE CONTAINER
+        ========================================================= */
+
+        .container {
+
+            max-width:
+                1200px;
+
+            margin:
+                25px auto;
+
+            padding:
+                0 20px 40px;
+
+            position:
+                relative;
+
+            z-index:
+                2;
+        }
+
+
+        /* =========================================================
+           TITLE BOX
+        ========================================================= */
+
+        .title-box {
+
+            background:
+
+                linear-gradient(
+                    135deg,
+                    rgba(
+                        5,
+                        24,
+                        43,
+                        0.94
+                    ),
+                    rgba(
+                        2,
+                        13,
+                        28,
+                        0.94
+                    )
+                );
+
+            color:
+                #ffffff;
+
+            border:
+                1px solid
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.36
+                );
+
+            border-radius:
+                10px;
+
+            padding:
+                18px 20px;
+
+            margin-bottom:
+                12px;
+
+            box-shadow:
+                0 0 22px
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.08
+                );
+
+            backdrop-filter:
+                blur(10px);
+        }
+
+
+        .title-box h1 {
+
+            font-size:
+                22px;
+
+            margin-bottom:
+                5px;
+        }
+
+
+        .title-box p {
+
+            color:
+                #9fc5d5;
+
+            font-size:
+                12px;
+        }
+
+
+        /* =========================================================
+           BUTTON ROW
+        ========================================================= */
+
+        .button-row {
+
+            display:
+                flex;
+
+            gap:
+                8px;
+
+            flex-wrap:
+                wrap;
+
+            align-items:
+                center;
+
+            margin-bottom:
+                18px;
+        }
+
+
+        .button-row a {
+
+            display:
+                inline-block;
+
+            text-decoration:
+                none;
+
+            padding:
+                8px 12px;
+
+            border-radius:
+                6px;
+
+            color:
+                #ffffff;
+
+            font-size:
+                12px;
+
+            font-weight:
+                bold;
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.08
+                );
+
+            transition:
+                0.25s;
+        }
+
+
+        .button-row a:hover {
+
+            transform:
+                translateY(-2px);
+        }
+
+
+        .btn-dark {
+
+            background:
+                #334155;
+        }
+
+
+        .btn-dark:hover {
+
+            background:
+                #1e293b;
+        }
+
+
+        .btn-dashboard {
+
+            background:
+                #0d6efd;
+        }
+
+
+        .btn-dashboard:hover {
+
+            background:
+                #0b5ed7;
+        }
+
+
+        .btn-history {
+
+            background:
+                #2563eb;
+        }
+
+
+        .btn-history:hover {
+
+            background:
+                #1d4ed8;
+        }
+
+
+        .btn-graph {
+
+            background:
+                #7c3aed;
+        }
+
+
+        .btn-graph:hover {
+
+            background:
+                #6d28d9;
+        }
+
+
+        .btn-alerts {
+
+            background:
+                #dc2626;
+        }
+
+
+        .btn-alerts:hover {
+
+            background:
+                #b91c1c;
+        }
+
+
+        .btn-pdf {
+
+            background:
+                #dc2626;
+        }
+
+
+        .btn-pdf:hover {
+
+            background:
+                #b91c1c;
+        }
+
+
+        .btn-csv {
+
+            background:
+                #059669;
+        }
+
+
+        .btn-csv:hover {
+
+            background:
+                #047857;
+        }
+
+
+        .watchlist-form {
+
+            display:
+                inline-block;
+
+            margin:
+                0;
+        }
+
+
+        .btn-watchlist {
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.08
+                );
+
+            background:
+                #f59e0b;
+
+            color:
+                #ffffff;
+
+            padding:
+                8px 12px;
+
+            border-radius:
+                6px;
+
+            font-size:
+                12px;
+
+            font-weight:
+                bold;
+
+            cursor:
+                pointer;
+
+            font-family:
+                inherit;
+
+            transition:
+                0.25s;
+        }
+
+
+        .btn-watchlist:hover {
+
+            background:
+                #d97706;
+
+            transform:
+                translateY(-2px);
+        }
+
+
+        /* =========================================================
+           SECTION CARD
+        ========================================================= */
+
+        .section-card {
+
+            background:
+
+                linear-gradient(
+                    135deg,
+                    rgba(
+                        4,
+                        18,
+                        34,
+                        0.90
+                    ),
+                    rgba(
+                        2,
+                        13,
+                        28,
+                        0.88
+                    )
+                );
+
+            border:
+                1px solid
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.26
+                );
+
+            border-radius:
+                12px;
+
+            padding:
+                18px;
+
+            margin-bottom:
+                18px;
+
+            box-shadow:
+                0 0 20px
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.06
+                );
+
+            backdrop-filter:
+                blur(10px);
+        }
+
+
+        .section-title {
+
+            font-size:
+                17px;
+
+            font-weight:
+                bold;
+
+            color:
+                #ffffff;
+
+            padding-bottom:
+                10px;
+
+            border-bottom:
+                1px solid
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.20
+                );
+
+            margin-bottom:
+                15px;
+        }
+
+
+        /* =========================================================
+           INFO GRID
+        ========================================================= */
+
+        .info-grid {
+
+            display:
+                grid;
+
+            grid-template-columns:
+
+                repeat(
+                    4,
+                    minmax(
+                        160px,
+                        1fr
+                    )
+                );
+
+            gap:
+                12px;
+        }
+
+
+        .info-box {
+
+            background:
+                rgba(
+                    2,
+                    14,
+                    28,
+                    0.80
+                );
+
+            border:
+                1px solid
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.18
+                );
+
+            border-radius:
+                7px;
+
+            padding:
+                11px;
+
+            min-height:
+                65px;
+        }
+
+
+        .info-label {
+
+            font-size:
+                10px;
+
+            color:
+                #7fb7c8;
+
+            margin-bottom:
+                7px;
+
+            letter-spacing:
+                0.3px;
+        }
+
+
+        .info-value {
+
+            font-size:
+                13px;
+
+            font-weight:
+                600;
+
+            color:
+                #ffffff;
+
+            word-break:
+                break-word;
+        }
+
+
+        /* =========================================================
+           RISK
+        ========================================================= */
+
+        .risk-wrapper {
+
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
+            gap:
+                20px;
+        }
+
+
+        .risk-score {
+
+            font-size:
+                32px;
+
+            font-weight:
+                bold;
+
+            color:
+                #ffffff;
+        }
+
+
+        .risk-level {
+
+            padding:
+                7px 14px;
+
+            border-radius:
+                20px;
+
+            font-size:
+                12px;
+
+            font-weight:
+                bold;
+        }
+
+
+        .risk-LOW {
+
+            background:
+                rgba(
+                    22,
+                    163,
+                    74,
+                    0.20
+                );
+
+            color:
+                #86efac;
+
+            border:
+                1px solid
+                rgba(
+                    134,
+                    239,
+                    172,
+                    0.35
+                );
+        }
+
+
+        .risk-MEDIUM {
+
+            background:
+                rgba(
+                    202,
+                    138,
+                    4,
+                    0.20
+                );
+
+            color:
+                #fde047;
+
+            border:
+                1px solid
+                rgba(
+                    253,
+                    224,
+                    71,
+                    0.35
+                );
+        }
+
+
+        .risk-SUSPICIOUS {
+
+            background:
+                rgba(
+                    234,
+                    88,
+                    12,
+                    0.20
+                );
+
+            color:
+                #fdba74;
+
+            border:
+                1px solid
+                rgba(
+                    253,
+                    186,
+                    116,
+                    0.35
+                );
+        }
+
+
+        .risk-HIGH {
+
+            background:
+                rgba(
+                    220,
+                    38,
+                    38,
+                    0.20
+                );
+
+            color:
+                #fca5a5;
+
+            border:
+                1px solid
+                rgba(
+                    252,
+                    165,
+                    165,
+                    0.35
+                );
+        }
+
+
+        .risk-CRITICAL {
+
+            background:
+                rgba(
+                    190,
+                    24,
+                    93,
+                    0.22
+                );
+
+            color:
+                #f9a8d4;
+
+            border:
+                1px solid
+                rgba(
+                    249,
+                    168,
+                    212,
+                    0.35
+                );
+        }
+
+
+        /* =========================================================
+           RISK REASONS
+        ========================================================= */
+
+        .reason {
+
+            background:
+                rgba(
+                    2,
+                    14,
+                    28,
+                    0.78
+                );
+
+            border-left:
+                3px solid
+                #22d3ee;
+
+            color:
+                #d9edf6;
+
+            padding:
+                9px 11px;
+
+            margin-bottom:
+                7px;
+
+            font-size:
+                12px;
+
+            border-radius:
+                4px;
+        }
+
+
+        /* =========================================================
+           VIRUSTOTAL
+        ========================================================= */
+
+        .analysis-grid {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(
+                    4,
+                    1fr
+                );
+
+            gap:
+                12px;
+
+            margin-top:
+                12px;
+        }
+
+
+        .analysis-box {
+
+            text-align:
+                center;
+
+            background:
+                rgba(
+                    2,
+                    14,
+                    28,
+                    0.80
+                );
+
+            border:
+                1px solid
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.18
+                );
+
+            border-radius:
+                7px;
+
+            padding:
+                18px 10px;
+        }
+
+
+        .analysis-number {
+
+            font-size:
+                22px;
+
+            font-weight:
+                bold;
+
+            color:
+                #ffffff;
+        }
+
+
+        .analysis-label {
+
+            color:
+                #7fa5b8;
+
+            font-size:
+                10px;
+
+            margin-top:
+                6px;
+        }
+
+
+        /* =========================================================
+           TAGS
+        ========================================================= */
+
+        .tag-list {
+
+            display:
+                flex;
+
+            gap:
+                6px;
+
+            flex-wrap:
+                wrap;
+
+            margin-top:
+                8px;
+        }
+
+
+        .tag {
+
+            background:
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.10
+                );
+
+            color:
+                #a6efff;
+
+            border:
+                1px solid
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.20
+                );
+
+            border-radius:
+                12px;
+
+            padding:
+                4px 8px;
+
+            font-size:
+                10px;
+        }
+
+
+        /* =========================================================
+           MAP
+        ========================================================= */
+
+        #resultMap {
+
+            width:
+                100%;
+
+            height:
+                430px;
+
+            min-height:
+                430px;
+
+            border-radius:
+                10px;
+
+            overflow:
+                hidden;
+
+            border:
+                1px solid
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.24
+                );
+
+            margin-top:
+                15px;
+
+            box-shadow:
+                0 0 18px
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.08
+                );
+        }
+
+
+        .map-note {
+
+            margin-top:
+                10px;
+
+            font-size:
+                11px;
+
+            color:
+                #7fa5b8;
+        }
+
+
+        /* =========================================================
+           TABLE
+        ========================================================= */
+
+        .table-wrapper {
+
+            overflow-x:
+                auto;
+
+            border-radius:
+                8px;
+
+            border:
+                1px solid
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.16
+                );
+        }
+
+
+        table {
+
+            width:
+                100%;
+
+            border-collapse:
+                collapse;
+
+            min-width:
+                800px;
+
+            background:
+                rgba(
+                    2,
+                    13,
+                    28,
+                    0.62
+                );
+        }
+
+
+        th {
+
+            background:
+                #06182a;
+
+            color:
+                #61e8ff;
+
+            padding:
+                10px;
+
+            font-size:
+                12px;
+
+            text-align:
+                left;
+        }
+
+
+        td {
+
+            padding:
+                10px;
+
+            color:
+                #d7eaf3;
+
+            border-bottom:
+                1px solid
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.11
+                );
+
+            font-size:
+                12px;
+        }
+
+
+        tbody tr:hover {
+
+            background:
+                rgba(
+                    34,
+                    211,
+                    238,
+                    0.05
+                );
+        }
+
+
+        /* =========================================================
+           MACHINE LEARNING
+        ========================================================= */
+
+        .ml-box {
+
+            background:
+                rgba(
+                    4,
+                    32,
+                    53,
+                    0.76
+                );
+
+            border:
+                1px solid
+                rgba(
+                    56,
+                    189,
+                    248,
+                    0.34
+                );
+
+            color:
+                #dff7ff;
+
+            border-radius:
+                7px;
+
+            padding:
+                15px;
+
+            font-size:
+                12px;
+
+            line-height:
+                1.8;
+        }
+
+
+        .empty-text {
+
+            font-size:
+                12px;
+
+            font-style:
+                italic;
+
+            color:
+                #7896a8;
+        }
+
+
+        h4 {
+
+            color:
+                #dff7ff;
+        }
+
+
+        /* =========================================================
+           LEAFLET POPUP
+        ========================================================= */
+
+        .leaflet-popup-content-wrapper,
+        .leaflet-popup-tip {
+
+            background:
+                #071827;
+
+            color:
+                #eaf7ff;
+        }
+
+
+        .leaflet-popup-content {
+
+            color:
+                #eaf7ff;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (
+            max-width: 900px
+        ) {
+
+            .info-grid {
+
+                grid-template-columns:
+                    repeat(
+                        2,
+                        1fr
+                    );
+            }
+
+
+            .analysis-grid {
+
+                grid-template-columns:
+                    repeat(
+                        2,
+                        1fr
+                    );
+            }
+
+        }
+
+
+        @media (
+            max-width: 600px
+        ) {
+
+            .top-header {
+
+                flex-direction:
+                    column;
+
+                align-items:
+                    flex-start;
+            }
+
+
+            .info-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .analysis-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .risk-wrapper {
+
+                flex-direction:
+                    column;
+
+                align-items:
+                    flex-start;
+            }
+
+
+            #resultMap {
+
+                height:
+                    350px;
+
+                min-height:
+                    350px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+
+<body>
+
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header class="top-header">
+
+
+    <div class="brand">
+
+        🛡️ Threat Intelligence System
+
+    </div>
+
+
+    <nav class="nav">
+
+
+        <a href="/">
+            Home
+        </a>
+
+
+        <a href="/dashboard/">
+            Dashboard
+        </a>
+
+
+        <a href="/history/">
+            History
+        </a>
+
+
+        <a href="/threat-graph/">
+            Threat Graph
+        </a>
+
+
+        <a href="/watchlist/">
+            ⭐ Watchlist
+        </a>
+
+
+        <a href="/alerts/">
+            🚨 Alerts
+        </a>
+
+
+        {% if session.get('role') == 'ADMIN' %}
+
+        <a href="/admin/users">
+            👥 Admin Users
+        </a>
+
+        {% endif %}
+
+
+        {% if session.get('user_id') %}
+
+        <a href="/auth/logout">
+            🚪 Logout
+        </a>
+
+        {% endif %}
+
+
+    </nav>
+
+
+</header>
+
+
+
+<div class="container">
+
+
+    <!-- =====================================================
+         TITLE
+    ====================================================== -->
+
+    <div class="title-box">
+
+
+        <h1>
+
+            🔎 IOC Investigation Result
+
+        </h1>
+
+
+        <p>
+
+            Cyber Threat Intelligence Analysis
+
+        </p>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         BUTTON ROW
+    ====================================================== -->
+
+    <div class="button-row">
+
+
+        <a
+            href="/"
+            class="btn-dark"
+        >
+            ↩ Investigation
+        </a>
+
+
+        <a
+            href="/dashboard/"
+            class="btn-dashboard"
+        >
+            🌍 Threat Dashboard
+        </a>
+
+
+        <a
+            href="/threat-graph/"
+            class="btn-graph"
+        >
+            🕸️ Threat Graph
+        </a>
+
+
+        <a
+            href="/history/"
+            class="btn-history"
+        >
+            🕘 History
+        </a>
+
+
+
+        <form
+            method="POST"
+            action="/watchlist/add"
+            class="watchlist-form"
+        >
+
+
+            <input
+                type="hidden"
+                name="ioc"
+                value="{{ ioc }}"
+            >
+
+
+            <input
+                type="hidden"
+                name="ioc_type"
+                value="{{ ioc_type }}"
+            >
+
+
+            <input
+                type="hidden"
+                name="risk_score"
+                value="{{ risk_score }}"
+            >
+
+
+            <input
+                type="hidden"
+                name="risk_level"
+                value="{{ risk_level }}"
+            >
+
+
+            <button
+                type="submit"
+                class="btn-watchlist"
+            >
+
+                ⭐ Add to Watchlist
+
+            </button>
+
+
+        </form>
+
+
+
+        <a
+            href="/alerts/"
+            class="btn-alerts"
+        >
+            🚨 Alerts
+        </a>
+
+
+
+        {% if investigation_id %}
+
+
+        <a
+            href="/reports/pdf/{{ investigation_id }}"
+            class="btn-pdf"
+        >
+
+            📄 PDF Report
+
+        </a>
+
+
+        <a
+            href="/reports/csv/{{ investigation_id }}"
+            class="btn-csv"
+        >
+
+            📊 CSV Report
+
+        </a>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         IOC INFORMATION
+    ====================================================== -->
+
+    <div class="section-card">
+
+
+        <div class="section-title">
+
+            📌 IOC Information
+
+        </div>
+
+
+        <div class="info-grid">
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    IOC
+                </div>
+
+                <div class="info-value">
+                    {{ ioc }}
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    IOC Type
+                </div>
+
+                <div class="info-value">
+                    {{ ioc_type }}
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Normalized IOC
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'ioc',
+                            ioc
+                        )
+                    }}
+
+                </div>
+
+            </div>
+
+
+            {% if investigation_id %}
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Investigation ID
+                </div>
+
+                <div class="info-value">
+                    {{ investigation_id }}
+                </div>
+
+            </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         RISK ASSESSMENT
+    ====================================================== -->
+
+    <div class="section-card">
+
+
+        <div class="section-title">
+
+            ⚠️ Risk Assessment
+
+        </div>
+
+
+        <div class="risk-wrapper">
+
+
+            <div>
+
+                <div class="info-label">
+                    Risk Score
+                </div>
+
+                <div class="risk-score">
+
+                    {{ risk_score }}/100
+
+                </div>
+
+            </div>
+
+
+
+            <div>
+
+                <div class="info-label">
+                    Risk Level
+                </div>
+
+
+                <span
+                    class="
+                        risk-level
+                        risk-{{ risk_level }}
+                    "
+                >
+
+                    {{ risk_level }}
+
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         RISK REASONS
+    ====================================================== -->
+
+    <div class="section-card">
+
+
+        <div class="section-title">
+
+            🧠 Risk Analysis Reasons
+
+        </div>
+
+
+        {% if risk_reasons %}
+
+
+            {% for reason in risk_reasons %}
+
+
+            <div class="reason">
+
+                {{ reason }}
+
+            </div>
+
+
+            {% endfor %}
+
+
+        {% else %}
+
+
+            <p class="empty-text">
+
+                No risk reasons available.
+
+            </p>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         VIRUSTOTAL
+    ====================================================== -->
+
+    <div class="section-card">
+
+
+        <div class="section-title">
+
+            🛡️ VirusTotal Analysis
+
+        </div>
+
+
+        {% if vt_data %}
+
+
+        <div class="info-grid">
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Indicator
+                </div>
+
+                <div class="info-value">
+                    {{ ioc }}
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    VirusTotal Country
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        vt_data.get(
+                            'country'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    VirusTotal ASN
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        vt_data.get(
+                            'asn'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Organization
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        vt_data.get(
+                            'organization'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Reputation
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        vt_data.get(
+                            'reputation',
+                            0
+                        )
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Analysis Status
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        vt_data.get(
+                            'analysis_status'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <h4
+            style="
+                margin-top: 20px;
+                margin-bottom: 10px;
+            "
+        >
+
+            Security Analysis
+
+        </h4>
+
+
+
+        <div class="analysis-grid">
+
+
+            <div class="analysis-box">
+
+                <div class="analysis-number">
+
+                    {{
+                        vt_data.get(
+                            'malicious',
+                            0
+                        )
+                    }}
+
+                </div>
+
+                <div class="analysis-label">
+                    Malicious
+                </div>
+
+            </div>
+
+
+            <div class="analysis-box">
+
+                <div class="analysis-number">
+
+                    {{
+                        vt_data.get(
+                            'suspicious',
+                            0
+                        )
+                    }}
+
+                </div>
+
+                <div class="analysis-label">
+                    Suspicious
+                </div>
+
+            </div>
+
+
+            <div class="analysis-box">
+
+                <div class="analysis-number">
+
+                    {{
+                        vt_data.get(
+                            'harmless',
+                            0
+                        )
+                    }}
+
+                </div>
+
+                <div class="analysis-label">
+                    Harmless
+                </div>
+
+            </div>
+
+
+            <div class="analysis-box">
+
+                <div class="analysis-number">
+
+                    {{
+                        vt_data.get(
+                            'undetected',
+                            0
+                        )
+                    }}
+
+                </div>
+
+                <div class="analysis-label">
+                    Undetected
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <h4
+            style="
+                margin-top: 20px;
+            "
+        >
+
+            Security Tags
+
+        </h4>
+
+
+        {% if vt_data.get('tags') %}
+
+
+        <div class="tag-list">
+
+
+            {% for tag in vt_data.get('tags') %}
+
+
+            <span class="tag">
+
+                {{ tag }}
+
+            </span>
+
+
+            {% endfor %}
+
+
+        </div>
+
+
+        {% else %}
+
+
+        <p
+            class="empty-text"
+            style="
+                margin-top: 8px;
+            "
+        >
+
+            No security tags available.
+
+        </p>
+
+
+        {% endif %}
+
+
+        {% else %}
+
+
+        <p class="empty-text">
+
+            VirusTotal information unavailable.
+
+        </p>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         HASH INFORMATION
+    ====================================================== -->
+
+    {% if ioc_type in [
+        'MD5 Hash',
+        'SHA1 Hash',
+        'SHA256 Hash'
+    ] %}
+
+
+    <div class="section-card">
+
+
+        <div class="section-title">
+
+            📁 File / Hash Information
+
+        </div>
+
+
+        <div class="info-grid">
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    File Name
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'file_name'
+                        )
+                        or
+                        vt_data.get(
+                            'file_name'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    File Type
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'file_type'
+                        )
+                        or
+                        vt_data.get(
+                            'file_type'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Size
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'size'
+                        )
+                        or
+                        vt_data.get(
+                            'size'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    MD5
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'md5'
+                        )
+                        or
+                        vt_data.get(
+                            'md5'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    SHA1
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'sha1'
+                        )
+                        or
+                        vt_data.get(
+                            'sha1'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    SHA256
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'sha256'
+                        )
+                        or
+                        vt_data.get(
+                            'sha256'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    {% endif %}
+
+
+
+    <!-- =====================================================
+         LOCATION INFORMATION
+    ====================================================== -->
+
+    <div class="section-card">
+
+
+        <div class="section-title">
+
+            📍 Location & Network Information
+
+        </div>
+
+
+        <div class="info-grid">
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Country
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'country'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Region
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'region'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    City
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'city'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    ISP
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'isp'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Organization
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'organization'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    ASN
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'asn'
+                        )
+                        or
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Latitude
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'latitude'
+                        )
+                        if
+                        normalized.get(
+                            'latitude'
+                        )
+                        is not none
+                        else
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Longitude
+                </div>
+
+                <div class="info-value">
+
+                    {{
+                        normalized.get(
+                            'longitude'
+                        )
+                        if
+                        normalized.get(
+                            'longitude'
+                        )
+                        is not none
+                        else
+                        'N/A'
+                    }}
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        {% if normalized.get('geolocation_source') %}
+
+
+        <p
+            style="
+                margin-top: 14px;
+                font-size: 11px;
+                color: #8cb7c8;
+            "
+        >
+
+            <strong>
+                Geolocation Source:
+            </strong>
+
+            {{
+                normalized.get(
+                    'geolocation_source'
+                )
+            }}
+
+        </p>
+
+
+        {% endif %}
+
+
+
+        {% if ioc_type in [
+            'MD5 Hash',
+            'SHA1 Hash',
+            'SHA256 Hash'
+        ] %}
+
+
+        <p class="map-note">
+
+            File hashes do not have a direct
+            physical network location by themselves.
+
+        </p>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         MAP
+    ====================================================== -->
+
+    {% if
+        normalized.get('latitude')
+        is not none
+        and
+        normalized.get('longitude')
+        is not none
+    %}
+
+
+    <div class="section-card">
+
+
+        <div class="section-title">
+
+            🌍 Geographical Location Map
+
+        </div>
+
+
+        <div id="resultMap"></div>
+
+
+        <p class="map-note">
+
+            Marker represents the geographical
+            location associated with the investigated
+            IOC or its resolved network infrastructure.
+
+        </p>
+
+
+    </div>
+
+
+    {% endif %}
+
+
+
+    <!-- =====================================================
+         RESOLVED IPS
+    ====================================================== -->
+
+    {% if normalized.get('resolved_ips') %}
+
+
+    <div class="section-card">
+
+
+        <div class="section-title">
+
+            🌐 Resolved IP Addresses
+
+        </div>
+
+
+        <div class="tag-list">
+
+
+            {% for ip in normalized.get('resolved_ips') %}
+
+
+            <span class="tag">
+
+                {{ ip }}
+
+            </span>
+
+
+            {% endfor %}
+
+
+        </div>
+
+
+    </div>
+
+
+    {% endif %}
+
+
+
+    <!-- =====================================================
+         RELATED IOCS
+    ====================================================== -->
+
+    <div class="section-card">
+
+
+        <div class="section-title">
+
+            🔗 Related IOCs
+
+        </div>
+
+
+        {% if relationships %}
+
+
+        <div class="table-wrapper">
+
+
+            <table>
+
+
+                <thead>
+
+
+                    <tr>
+
+
+                        <th>
+                            Source IOC
+                        </th>
+
+
+                        <th>
+                            Related IOC
+                        </th>
+
+
+                        <th>
+                            Type
+                        </th>
+
+
+                        <th>
+                            Relationship
+                        </th>
+
+
+                        <th>
+                            Source
+                        </th>
+
+
+                    </tr>
+
+
+                </thead>
+
+
+
+                <tbody>
+
+
+                    {% for item in relationships %}
+
+
+                    <tr>
+
+
+                        <td>
+
+                            {{
+                                item.get(
+                                    'source_ioc',
+                                    'N/A'
+                                )
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.get(
+                                    'related_ioc',
+                                    'N/A'
+                                )
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.get(
+                                    'related_type',
+                                    'N/A'
+                                )
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.get(
+                                    'relationship',
+                                    'N/A'
+                                )
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.get(
+                                    'source',
+                                    'N/A'
+                                )
+                            }}
+
+                        </td>
+
+
+                    </tr>
+
+
+                    {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+
+        {% else %}
+
+
+        <p class="empty-text">
+
+            No related IOCs found.
+
+        </p>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         MACHINE LEARNING
+    ====================================================== -->
+
+    <div class="section-card">
+
+
+        <div class="section-title">
+
+            🤖 Machine Learning Prediction
+
+        </div>
+
+
+        {% if ml_result %}
+
+
+        <div class="ml-box">
+
+
+            <div>
+
+                <strong>
+                    Available:
+                </strong>
+
+                {{
+                    ml_result.get(
+                        'available',
+                        False
+                    )
+                }}
+
+            </div>
+
+
+
+            <div>
+
+                <strong>
+                    Risk:
+                </strong>
+
+                {{
+                    ml_result.get(
+                        'risk',
+                        'N/A'
+                    )
+                }}
+
+            </div>
+
+
+
+            <div>
+
+                <strong>
+                    Prediction:
+                </strong>
+
+                {{
+                    ml_result.get(
+                        'prediction',
+                        'N/A'
+                    )
+                }}
+
+            </div>
+
+
+
+            <div>
+
+                <strong>
+                    Confidence:
+                </strong>
+
+                {{
+                    ml_result.get(
+                        'confidence',
+                        'N/A'
+                    )
+                }}
+
+                {% if
+                    ml_result.get(
+                        'confidence'
+                    )
+                    is not none
+                %}
+
+                    %
+
+                {% endif %}
+
+            </div>
+
+
+
+            <div>
+
+                <strong>
+                    Model:
+                </strong>
+
+                {{
+                    ml_result.get(
+                        'model',
+                        'N/A'
+                    )
+                }}
+
+            </div>
+
+
+
+            {% if ml_result.get('probabilities') %}
+
+
+            <div
+                style="
+                    margin-top: 10px;
+                "
+            >
+
+                <strong>
+                    Probabilities:
+                </strong>
+
+            </div>
+
+
+
+            {% for key, value in
+                ml_result.get(
+                    'probabilities'
+                ).items()
+            %}
+
+
+            <div>
+
+                {{ key }}:
+                {{ value }}%
+
+            </div>
+
+
+            {% endfor %}
+
+
+            {% endif %}
+
+
+        </div>
+
+
+        {% else %}
+
+
+        <p class="empty-text">
+
+            Machine learning result unavailable.
+
+        </p>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     MAP JAVASCRIPT
+========================================================= -->
+
+{% if
+    normalized.get('latitude')
+    is not none
+    and
+    normalized.get('longitude')
+    is not none
+%}
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const latitude =
+            parseFloat(
+                {{ normalized.get('latitude') | tojson }}
+            );
+
+
+        const longitude =
+            parseFloat(
+                {{ normalized.get('longitude') | tojson }}
+            );
+
+
+        console.log(
+            "Result Latitude:",
+            latitude
+        );
+
+
+        console.log(
+            "Result Longitude:",
+            longitude
+        );
+
+
+        if (
+            Number.isNaN(latitude)
+            ||
+            Number.isNaN(longitude)
+        ) {
+
+            console.error(
+                "Invalid geographical coordinates."
+            );
+
+            return;
+        }
+
+
+        /* =====================================================
+           CREATE MAP
+        ===================================================== */
+
+        const map =
+            L.map(
+                "resultMap"
+            ).setView(
+                [
+                    latitude,
+                    longitude
+                ],
+                9
+            );
+
+
+        /* =====================================================
+           OPENSTREETMAP
+        ===================================================== */
+
+        L.tileLayer(
+
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+            {
+
+                maxZoom:
+                    19,
+
+                attribution:
+                    "&copy; OpenStreetMap contributors"
+
+            }
+
+        ).addTo(
+            map
+        );
+
+
+        /* =====================================================
+           MARKER
+        ===================================================== */
+
+        const marker =
+            L.marker(
+                [
+                    latitude,
+                    longitude
+                ]
+            ).addTo(
+                map
+            );
+
+
+        /* =====================================================
+           POPUP
+        ===================================================== */
+
+        marker.bindPopup(
+
+            `
+            <div
+                style="
+                    min-width: 220px;
+                    font-family: Arial;
+                    color: #eaf7ff;
+                "
+            >
+
+                <strong>
+                    {{ ioc | e }}
+                </strong>
+
+                <br><br>
+
+
+                <b>
+                    IOC Type:
+                </b>
+
+                {{ ioc_type | e }}
+
+                <br>
+
+
+                <b>
+                    Country:
+                </b>
+
+                {{ normalized.get('country') or 'N/A' }}
+
+                <br>
+
+
+                <b>
+                    Region:
+                </b>
+
+                {{ normalized.get('region') or 'N/A' }}
+
+                <br>
+
+
+                <b>
+                    City:
+                </b>
+
+                {{ normalized.get('city') or 'N/A' }}
+
+                <br>
+
+
+                <b>
+                    ISP:
+                </b>
+
+                {{ normalized.get('isp') or 'N/A' }}
+
+                <br>
+
+
+                <b>
+                    Organization:
+                </b>
+
+                {{ normalized.get('organization') or 'N/A' }}
+
+                <br>
+
+
+                <b>
+                    ASN:
+                </b>
+
+                {{ normalized.get('asn') or 'N/A' }}
+
+                <br>
+
+
+                <b>
+                    Latitude:
+                </b>
+
+                ${latitude}
+
+                <br>
+
+
+                <b>
+                    Longitude:
+                </b>
+
+                ${longitude}
+
+
+            </div>
+            `
+
+        );
+
+
+        marker.openPopup();
+
+
+        setTimeout(
+
+            function () {
+
+                map.invalidateSize();
+
+                map.setView(
+                    [
+                        latitude,
+                        longitude
+                    ],
+                    9
+                );
+
+            },
+
+            300
+
+        );
+
+    }
+
+);
+
+</script>
+
+
+{% endif %}
+
+
+</body>
+
+</html>

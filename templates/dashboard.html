@@ -1,0 +1,2028 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        OSINT Threat Intelligence Dashboard
+    </title>
+
+
+    <!-- =====================================================
+         LEAFLET CSS
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+
+    <!-- =====================================================
+         LEAFLET JS
+    ====================================================== -->
+
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+
+
+    <!-- =====================================================
+         CHART.JS
+    ====================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js">
+    </script>
+
+
+    <a href="/threat-graph/">
+    🕸️ Threat Graph
+</a>
+     <a href="/alerts/">
+    🚨 Alerts
+</a>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+            background: #03111f;
+            color: #ffffff;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ====================================================== */
+
+        .header {
+            width: 100%;
+
+            background: #071c31;
+
+            border-bottom:
+                1px solid #123b5c;
+
+            padding:
+                16px 25px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content:
+                space-between;
+
+            position: relative;
+
+            z-index: 10000;
+        }
+
+
+        .brand {
+            font-size: 21px;
+
+            font-weight: bold;
+
+            color: #ffffff;
+        }
+
+
+        .brand span {
+            color: #38bdf8;
+        }
+
+
+        .nav {
+            display: flex;
+
+            gap: 28px;
+        }
+
+
+        .nav a {
+            color: #8bdcff;
+
+            text-decoration: none;
+
+            font-size: 15px;
+
+            cursor: pointer;
+
+            pointer-events: auto;
+        }
+
+
+        .nav a:hover {
+            color: #ffffff;
+        }
+
+
+        /* =====================================================
+           PAGE
+        ====================================================== */
+
+        .container {
+            width: 100%;
+
+            max-width: 1500px;
+
+            margin: 0 auto;
+
+            padding: 25px;
+        }
+
+
+        .dashboard-title {
+            margin-bottom: 8px;
+
+            font-size: 28px;
+        }
+
+
+        .dashboard-subtitle {
+            color: #8fa9bd;
+
+            margin-bottom: 25px;
+        }
+
+
+        /* =====================================================
+           STATUS
+        ====================================================== */
+
+        .status-bar {
+            background: #071c31;
+
+            border:
+                1px solid #123b5c;
+
+            border-radius: 10px;
+
+            padding: 12px 16px;
+
+            margin-bottom: 20px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+        }
+
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+
+            background: #00ff88;
+
+            border-radius: 50%;
+
+            box-shadow:
+                0 0 10px #00ff88;
+        }
+
+
+        .status-text {
+            color: #00ff88;
+
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           SUMMARY CARDS
+        ====================================================== */
+
+        .summary-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    6,
+                    minmax(150px, 1fr)
+                );
+
+            gap: 15px;
+
+            margin-bottom: 25px;
+        }
+
+
+        .summary-card {
+            background: #071c31;
+
+            border:
+                1px solid #123b5c;
+
+            border-radius: 12px;
+
+            padding: 20px;
+
+            min-height: 115px;
+        }
+
+
+        .summary-label {
+            color: #8fa9bd;
+
+            font-size: 13px;
+
+            margin-bottom: 13px;
+        }
+
+
+        .summary-value {
+            font-size: 30px;
+
+            font-weight: bold;
+        }
+
+
+        .total-value {
+            color: #38bdf8;
+        }
+
+
+        .low-value {
+            color: #00ff88;
+        }
+
+
+        .medium-value {
+            color: #ffd700;
+        }
+
+
+        .suspicious-value {
+            color: #ff8800;
+        }
+
+
+        .high-value {
+            color: #ff3333;
+        }
+
+
+        .critical-value {
+            color: #ff4bd8;
+        }
+
+
+        /* =====================================================
+           GRID
+        ====================================================== */
+
+        .main-grid {
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 2fr)
+                minmax(320px, 1fr);
+
+            gap: 20px;
+
+            margin-bottom: 25px;
+        }
+
+
+        .card {
+            background: #071c31;
+
+            border:
+                1px solid #123b5c;
+
+            border-radius: 12px;
+
+            padding: 20px;
+        }
+
+
+        .card-title {
+            font-size: 18px;
+
+            margin-bottom: 8px;
+        }
+
+
+        .card-subtitle {
+            color: #8fa9bd;
+
+            font-size: 13px;
+
+            margin-bottom: 18px;
+        }
+
+
+        /* =====================================================
+           MAP
+        ====================================================== */
+
+        #threatMap {
+            width: 100%;
+
+            height: 500px;
+
+            min-height: 500px;
+
+            border-radius: 10px;
+
+            overflow: hidden;
+
+            position: relative;
+
+            z-index: 1;
+        }
+
+
+        /* Leaflet dark popup */
+
+        .leaflet-popup-content-wrapper {
+            background: #071c31;
+
+            color: white;
+
+            border:
+                1px solid #123b5c;
+        }
+
+
+        .leaflet-popup-tip {
+            background: #071c31;
+        }
+
+
+        .popup-ioc {
+            color: #38bdf8;
+
+            font-weight: bold;
+
+            font-size: 15px;
+        }
+
+
+        .popup-row {
+            margin-top: 5px;
+
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           CHART
+        ====================================================== */
+
+        .chart-container {
+            position: relative;
+
+            width: 100%;
+
+            height: 310px;
+        }
+
+
+        /* =====================================================
+           SOURCE STATUS
+        ====================================================== */
+
+        .sources {
+            margin-top: 20px;
+        }
+
+
+        .source-row {
+            display: flex;
+
+            align-items: center;
+
+            justify-content:
+                space-between;
+
+            border-bottom:
+                1px solid #123b5c;
+
+            padding:
+                12px 0;
+        }
+
+
+        .source-row:last-child {
+            border-bottom: none;
+        }
+
+
+        .source-name {
+            color: #d9e8f3;
+        }
+
+
+        .online {
+            color: #00ff88;
+
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           LEGEND
+        ====================================================== */
+
+        .legend {
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 15px;
+
+            margin-top: 15px;
+        }
+
+
+        .legend-item {
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            color: #a7bfd0;
+
+            font-size: 12px;
+        }
+
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+
+            border-radius: 50%;
+        }
+
+
+        .legend-low {
+            background: #00ff88;
+        }
+
+
+        .legend-medium {
+            background: #ffd700;
+        }
+
+
+        .legend-suspicious {
+            background: #ff8800;
+        }
+
+
+        .legend-high {
+            background: #ff3333;
+        }
+
+
+        .legend-critical {
+            background: #ff4bd8;
+        }
+
+
+        /* =====================================================
+           TABLE
+        ====================================================== */
+
+        .recent-card {
+            margin-bottom: 30px;
+        }
+
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+
+        table {
+            width: 100%;
+
+            border-collapse:
+                collapse;
+        }
+
+
+        th {
+            text-align: left;
+
+            color: #8fa9bd;
+
+            font-size: 13px;
+
+            font-weight: normal;
+
+            padding:
+                12px 10px;
+
+            border-bottom:
+                1px solid #123b5c;
+        }
+
+
+        td {
+            padding:
+                13px 10px;
+
+            border-bottom:
+                1px solid #0d2b43;
+
+            font-size: 13px;
+
+            color: #dce9f2;
+        }
+
+
+        tr:hover {
+            background: #0a253e;
+        }
+
+
+        .ioc-cell {
+            color: #38bdf8;
+        }
+
+
+        .risk-badge {
+            display: inline-block;
+
+            padding:
+                5px 9px;
+
+            border-radius: 5px;
+
+            font-size: 11px;
+
+            font-weight: bold;
+        }
+
+
+        .risk-low {
+            color: #00ff88;
+
+            border:
+                1px solid #00ff88;
+        }
+
+
+        .risk-medium {
+            color: #ffd700;
+
+            border:
+                1px solid #ffd700;
+        }
+
+
+        .risk-suspicious {
+            color: #ff8800;
+
+            border:
+                1px solid #ff8800;
+        }
+
+
+        .risk-high {
+            color: #ff3333;
+
+            border:
+                1px solid #ff3333;
+        }
+
+
+        .risk-critical {
+            color: #ff4bd8;
+
+            border:
+                1px solid #ff4bd8;
+        }
+
+
+        /* =====================================================
+           EMPTY MESSAGE
+        ====================================================== */
+
+        .empty {
+            text-align: center;
+
+            color: #8fa9bd;
+
+            padding: 30px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ====================================================== */
+
+        @media (
+            max-width: 1150px
+        ) {
+
+            .summary-grid {
+                grid-template-columns:
+                    repeat(
+                        3,
+                        1fr
+                    );
+            }
+
+
+            .main-grid {
+                grid-template-columns:
+                    1fr;
+            }
+
+        }
+
+
+        @media (
+            max-width: 700px
+        ) {
+
+            .header {
+                flex-direction:
+                    column;
+
+                gap: 15px;
+            }
+
+
+            .summary-grid {
+                grid-template-columns:
+                    repeat(
+                        2,
+                        1fr
+                    );
+            }
+
+
+            .container {
+                padding: 15px;
+            }
+
+
+            #threatMap {
+                height: 400px;
+
+                min-height: 400px;
+            }
+
+        }
+
+
+        @media (
+            max-width: 450px
+        ) {
+
+            .summary-grid {
+                grid-template-columns:
+                    1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header class="header">
+
+    <div class="brand">
+
+        OSINT
+        <span>
+            Threat Intelligence
+        </span>
+
+    </div>
+
+
+    <nav class="nav">
+
+        <a href="/">
+            Investigation
+        </a>
+
+        <a href="/dashboard/">
+            Dashboard
+        </a>
+
+        <a href="/history/">
+            History
+        </a>
+
+    </nav>
+
+</header>
+
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<div class="container">
+
+
+    <h1 class="dashboard-title">
+
+        Threat Intelligence Dashboard
+
+    </h1>
+
+
+    <p class="dashboard-subtitle">
+
+        Global IOC monitoring,
+        geographical intelligence
+        and risk analysis.
+
+    </p>
+
+
+
+    <!-- =====================================================
+         SYSTEM STATUS
+    ====================================================== -->
+
+    <div class="status-bar">
+
+        <div class="status-dot">
+        </div>
+
+        <div class="status-text">
+
+            System Online
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         SUMMARY CARDS
+    ====================================================== -->
+
+    <section class="summary-grid">
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                TOTAL INVESTIGATIONS
+            </div>
+
+            <div
+                class="
+                    summary-value
+                    total-value
+                "
+            >
+
+                {{ total_investigations | default(0) }}
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                LOW
+            </div>
+
+            <div
+                class="
+                    summary-value
+                    low-value
+                "
+            >
+
+                {{ risk_counts.get('LOW', 0) }}
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                MEDIUM
+            </div>
+
+            <div
+                class="
+                    summary-value
+                    medium-value
+                "
+            >
+
+                {{ risk_counts.get('MEDIUM', 0) }}
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                SUSPICIOUS
+            </div>
+
+            <div
+                class="
+                    summary-value
+                    suspicious-value
+                "
+            >
+
+                {{ risk_counts.get('SUSPICIOUS', 0) }}
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                HIGH
+            </div>
+
+            <div
+                class="
+                    summary-value
+                    high-value
+                "
+            >
+
+                {{ risk_counts.get('HIGH', 0) }}
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                CRITICAL
+            </div>
+
+            <div
+                class="
+                    summary-value
+                    critical-value
+                "
+            >
+
+                {{ risk_counts.get('CRITICAL', 0) }}
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =====================================================
+         MAP + CHART
+    ====================================================== -->
+
+    <section class="main-grid">
+
+
+        <!-- =================================================
+             MAP
+        ================================================== -->
+
+        <div class="card">
+
+            <h2 class="card-title">
+
+                Global Geographical
+                Threat Map
+
+            </h2>
+
+
+            <p class="card-subtitle">
+
+                Displays IP,
+                Domain and URL
+                investigations that
+                contain geographical
+                coordinates.
+
+            </p>
+
+
+            <div id="threatMap">
+            </div>
+
+
+            <div class="legend">
+
+                <div class="legend-item">
+
+                    <div
+                        class="
+                            legend-dot
+                            legend-low
+                        "
+                    ></div>
+
+                    LOW
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <div
+                        class="
+                            legend-dot
+                            legend-medium
+                        "
+                    ></div>
+
+                    MEDIUM
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <div
+                        class="
+                            legend-dot
+                            legend-suspicious
+                        "
+                    ></div>
+
+                    SUSPICIOUS
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <div
+                        class="
+                            legend-dot
+                            legend-high
+                        "
+                    ></div>
+
+                    HIGH
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <div
+                        class="
+                            legend-dot
+                            legend-critical
+                        "
+                    ></div>
+
+                    CRITICAL
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             RIGHT SIDE
+        ================================================== -->
+
+        <div>
+
+
+            <!-- =============================================
+                 RISK CHART
+            ============================================== -->
+
+            <div class="card">
+
+                <h2 class="card-title">
+
+                    Risk Distribution
+
+                </h2>
+
+
+                <p class="card-subtitle">
+
+                    Current investigation
+                    risk classification.
+
+                </p>
+
+
+                <div class="chart-container">
+
+                    <canvas id="riskChart">
+                    </canvas>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =============================================
+                 SOURCE STATUS
+            ============================================== -->
+
+            <div class="card sources">
+
+                <h2 class="card-title">
+
+                    Intelligence Sources
+
+                </h2>
+
+
+                <div class="source-row">
+
+                    <span class="source-name">
+
+                        VirusTotal
+
+                    </span>
+
+                    <span class="online">
+
+                        ● Online
+
+                    </span>
+
+                </div>
+
+
+                <div class="source-row">
+
+                    <span class="source-name">
+
+                        AbuseIPDB
+
+                    </span>
+
+                    <span class="online">
+
+                        ● Online
+
+                    </span>
+
+                </div>
+
+
+                <div class="source-row">
+
+                    <span class="source-name">
+
+                        Shodan
+
+                    </span>
+
+                    <span class="online">
+
+                        ● Configured
+
+                    </span>
+
+                </div>
+
+
+                <div class="source-row">
+
+                    <span class="source-name">
+
+                        WHOIS
+
+                    </span>
+
+                    <span class="online">
+
+                        ● Online
+
+                    </span>
+
+                </div>
+
+
+                <div class="source-row">
+
+                    <span class="source-name">
+
+                        Geolocation
+
+                    </span>
+
+                    <span class="online">
+
+                        ● Online
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =====================================================
+         RECENT INVESTIGATIONS
+    ====================================================== -->
+
+    <section class="card recent-card">
+
+        <h2 class="card-title">
+
+            Recent Investigations
+
+        </h2>
+
+
+        <p class="card-subtitle">
+
+            Latest IOC investigations
+            stored in the database.
+
+        </p>
+
+
+        <div class="table-wrapper">
+
+
+            {% if recent_investigations %}
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            IOC
+                        </th>
+
+                        <th>
+                            Type
+                        </th>
+
+                        <th>
+                            Country
+                        </th>
+
+                        <th>
+                            City
+                        </th>
+
+                        <th>
+                            Risk Score
+                        </th>
+
+                        <th>
+                            Risk Level
+                        </th>
+
+                        <th>
+                            Time
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for item in recent_investigations %}
+
+
+                    <tr>
+
+                        <td class="ioc-cell">
+
+                            {{ item.ioc }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item.ioc_type }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.country
+                                if item.country
+                                else 'N/A'
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.city
+                                if item.city
+                                else 'N/A'
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.risk_score
+                                if item.risk_score
+                                is not none
+                                else 0
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            {% set level =
+                                item.risk_level
+                                | default('LOW')
+                                | upper
+                            %}
+
+
+                            <span
+                                class="
+                                    risk-badge
+                                    risk-{{ level | lower }}
+                                "
+                            >
+
+                                {{ level }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item.created_at }}
+
+                        </td>
+
+                    </tr>
+
+
+                    {% endfor %}
+
+
+                </tbody>
+
+            </table>
+
+
+            {% else %}
+
+
+            <div class="empty">
+
+                No investigations
+                available.
+
+            </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+    </section>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+
+/* =========================================================
+   DATA FROM FLASK
+========================================================= */
+
+const mapData =
+    {{ map_data | default([]) | tojson }};
+
+
+const riskData = {
+
+    LOW:
+        {{ risk_counts.get('LOW', 0) }},
+
+    MEDIUM:
+        {{ risk_counts.get('MEDIUM', 0) }},
+
+    SUSPICIOUS:
+        {{ risk_counts.get('SUSPICIOUS', 0) }},
+
+    HIGH:
+        {{ risk_counts.get('HIGH', 0) }},
+
+    CRITICAL:
+        {{ risk_counts.get('CRITICAL', 0) }}
+
+};
+
+
+console.log(
+    "Dashboard Map Data:",
+    mapData
+);
+
+
+
+/* =========================================================
+   CREATE LEAFLET MAP
+========================================================= */
+
+const map = L.map(
+    "threatMap"
+).setView(
+    [20, 0],
+    2
+);
+
+
+
+/* =========================================================
+   OPENSTREETMAP LAYER
+========================================================= */
+
+L.tileLayer(
+
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+    {
+
+        maxZoom: 19,
+
+        attribution:
+            "&copy; OpenStreetMap contributors"
+
+    }
+
+).addTo(map);
+
+
+
+/* =========================================================
+   RISK COLOR
+========================================================= */
+
+function getRiskColor(
+    level
+) {
+
+    if (!level) {
+        return "#38bdf8";
+    }
+
+
+    level =
+        String(level)
+        .toUpperCase();
+
+
+    if (
+        level === "CRITICAL"
+    ) {
+
+        return "#ff4bd8";
+
+    }
+
+
+    if (
+        level === "HIGH"
+    ) {
+
+        return "#ff3333";
+
+    }
+
+
+    if (
+        level === "SUSPICIOUS"
+    ) {
+
+        return "#ff8800";
+
+    }
+
+
+    if (
+        level === "MEDIUM"
+    ) {
+
+        return "#ffd700";
+
+    }
+
+
+    if (
+        level === "LOW"
+    ) {
+
+        return "#00ff88";
+
+    }
+
+
+    return "#38bdf8";
+
+}
+
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(
+    value
+) {
+
+    if (
+        value === null
+        ||
+        value === undefined
+    ) {
+
+        return "N/A";
+
+    }
+
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+
+/* =========================================================
+   MAP MARKERS
+========================================================= */
+
+const markerGroup = [];
+
+
+mapData.forEach(
+
+    function(item) {
+
+
+        const latitude =
+            parseFloat(
+                item.latitude
+            );
+
+
+        const longitude =
+            parseFloat(
+                item.longitude
+            );
+
+
+        if (
+            Number.isNaN(latitude)
+            ||
+            Number.isNaN(longitude)
+        ) {
+
+            console.log(
+                "Skipping invalid map item:",
+                item
+            );
+
+            return;
+
+        }
+
+
+        const markerColor =
+            getRiskColor(
+                item.risk_level
+            );
+
+
+        const marker =
+            L.circleMarker(
+
+                [
+                    latitude,
+                    longitude
+                ],
+
+                {
+
+                    radius: 9,
+
+                    color:
+                        markerColor,
+
+                    fillColor:
+                        markerColor,
+
+                    fillOpacity:
+                        0.85,
+
+                    weight:
+                        2
+
+                }
+
+            );
+
+
+        marker.addTo(
+            map
+        );
+
+
+        const popup = `
+
+            <div>
+
+                <div class="popup-ioc">
+
+                    ${escapeHtml(
+                        item.ioc
+                    )}
+
+                </div>
+
+
+                <div class="popup-row">
+
+                    <b>
+                        IOC Type:
+                    </b>
+
+                    ${escapeHtml(
+                        item.ioc_type
+                    )}
+
+                </div>
+
+
+                <div class="popup-row">
+
+                    <b>
+                        Country:
+                    </b>
+
+                    ${escapeHtml(
+                        item.country
+                    )}
+
+                </div>
+
+
+                <div class="popup-row">
+
+                    <b>
+                        Region:
+                    </b>
+
+                    ${escapeHtml(
+                        item.region
+                    )}
+
+                </div>
+
+
+                <div class="popup-row">
+
+                    <b>
+                        City:
+                    </b>
+
+                    ${escapeHtml(
+                        item.city
+                    )}
+
+                </div>
+
+
+                <div class="popup-row">
+
+                    <b>
+                        ISP:
+                    </b>
+
+                    ${escapeHtml(
+                        item.isp
+                    )}
+
+                </div>
+
+
+                <div class="popup-row">
+
+                    <b>
+                        Organization:
+                    </b>
+
+                    ${escapeHtml(
+                        item.organization
+                    )}
+
+                </div>
+
+
+                <div class="popup-row">
+
+                    <b>
+                        ASN:
+                    </b>
+
+                    ${
+                        item.asn
+                        ?
+                        escapeHtml(
+                            item.asn
+                        )
+                        :
+                        "N/A"
+                    }
+
+                </div>
+
+
+                <div class="popup-row">
+
+                    <b>
+                        Risk:
+                    </b>
+
+                    ${escapeHtml(
+                        item.risk_level
+                    )}
+
+                </div>
+
+
+                <div class="popup-row">
+
+                    <b>
+                        Risk Score:
+                    </b>
+
+                    ${escapeHtml(
+                        item.risk_score
+                    )}
+
+                </div>
+
+
+                <div class="popup-row">
+
+                    <b>
+                        Coordinates:
+                    </b>
+
+                    ${latitude},
+                    ${longitude}
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        marker.bindPopup(
+            popup
+        );
+
+
+        markerGroup.push(
+            marker
+        );
+
+    }
+
+);
+
+
+
+/* =========================================================
+   AUTO ZOOM TO ALL MARKERS
+========================================================= */
+
+if (
+    markerGroup.length > 0
+) {
+
+    const featureGroup =
+        L.featureGroup(
+            markerGroup
+        );
+
+
+    const bounds =
+        featureGroup.getBounds();
+
+
+    if (
+        bounds.isValid()
+    ) {
+
+        if (
+            markerGroup.length === 1
+        ) {
+
+            map.setView(
+                bounds.getCenter(),
+                6
+            );
+
+        }
+
+        else {
+
+            map.fitBounds(
+
+                bounds,
+
+                {
+
+                    padding:
+                        [
+                            40,
+                            40
+                        ],
+
+                    maxZoom:
+                        7
+
+                }
+
+            );
+
+        }
+
+    }
+
+}
+
+
+
+/* =========================================================
+   MAP SIZE FIX
+========================================================= */
+
+setTimeout(
+
+    function() {
+
+        map.invalidateSize();
+
+    },
+
+    300
+
+);
+
+
+
+/* =========================================================
+   RISK CHART
+========================================================= */
+
+const chartElement =
+    document.getElementById(
+        "riskChart"
+    );
+
+
+if (
+    chartElement
+) {
+
+    new Chart(
+
+        chartElement,
+
+        {
+
+            type:
+                "doughnut",
+
+            data: {
+
+                labels: [
+
+                    "LOW",
+
+                    "MEDIUM",
+
+                    "SUSPICIOUS",
+
+                    "HIGH",
+
+                    "CRITICAL"
+
+                ],
+
+                datasets: [
+
+                    {
+
+                        data: [
+
+                            riskData.LOW,
+
+                            riskData.MEDIUM,
+
+                            riskData.SUSPICIOUS,
+
+                            riskData.HIGH,
+
+                            riskData.CRITICAL
+
+                        ],
+
+                        backgroundColor: [
+
+                            "#00ff88",
+
+                            "#ffd700",
+
+                            "#ff8800",
+
+                            "#ff3333",
+
+                            "#ff4bd8"
+
+                        ],
+
+                        borderColor:
+                            "#071c31",
+
+                        borderWidth:
+                            4
+
+                    }
+
+                ]
+
+            },
+
+
+            options: {
+
+                responsive:
+                    true,
+
+                maintainAspectRatio:
+                    false,
+
+                plugins: {
+
+                    legend: {
+
+                        position:
+                            "bottom",
+
+                        labels: {
+
+                            color:
+                                "#d8e6f0",
+
+                            padding:
+                                15,
+
+                            usePointStyle:
+                                true
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    );
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>

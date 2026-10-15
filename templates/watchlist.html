@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        IOC Watchlist
+    </title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                #03111f;
+
+            color:
+                #ffffff;
+
+            min-height:
+                100vh;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ====================================================== */
+
+        .header {
+
+            background:
+                #071c31;
+
+            border-bottom:
+                1px solid #123b5c;
+
+            padding:
+                16px 25px;
+
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+        }
+
+
+        .brand {
+
+            font-size:
+                21px;
+
+            font-weight:
+                bold;
+        }
+
+
+        .brand span {
+
+            color:
+                #38bdf8;
+        }
+
+
+        .nav {
+
+            display:
+                flex;
+
+            gap:
+                22px;
+        }
+
+
+        .nav a {
+
+            color:
+                #8bdcff;
+
+            text-decoration:
+                none;
+
+            font-size:
+                14px;
+        }
+
+
+        .nav a:hover {
+
+            color:
+                white;
+        }
+
+
+        /* =====================================================
+           PAGE
+        ====================================================== */
+
+        .container {
+
+            max-width:
+                1450px;
+
+            margin:
+                0 auto;
+
+            padding:
+                28px 20px 50px;
+        }
+
+
+        .page-title {
+
+            font-size:
+                30px;
+
+            margin-bottom:
+                7px;
+        }
+
+
+        .subtitle {
+
+            color:
+                #8fa9bd;
+
+            margin-bottom:
+                24px;
+
+            font-size:
+                14px;
+        }
+
+
+        /* =====================================================
+           SUMMARY
+        ====================================================== */
+
+        .summary-grid {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(
+                    3,
+                    1fr
+                );
+
+            gap:
+                16px;
+
+            margin-bottom:
+                24px;
+        }
+
+
+        .summary-card {
+
+            background:
+                #071c31;
+
+            border:
+                1px solid #123b5c;
+
+            border-radius:
+                11px;
+
+            padding:
+                20px;
+        }
+
+
+        .summary-label {
+
+            color:
+                #8fa9bd;
+
+            font-size:
+                12px;
+
+            margin-bottom:
+                8px;
+        }
+
+
+        .summary-value {
+
+            font-size:
+                28px;
+
+            font-weight:
+                bold;
+        }
+
+
+        /* =====================================================
+           FILTER
+        ====================================================== */
+
+        .toolbar {
+
+            background:
+                #071c31;
+
+            border:
+                1px solid #123b5c;
+
+            border-radius:
+                10px;
+
+            padding:
+                15px;
+
+            margin-bottom:
+                20px;
+
+            display:
+                flex;
+
+            gap:
+                10px;
+
+            flex-wrap:
+                wrap;
+        }
+
+
+        .toolbar input,
+        .toolbar select {
+
+            background:
+                #03111f;
+
+            color:
+                white;
+
+            border:
+                1px solid #245078;
+
+            border-radius:
+                6px;
+
+            padding:
+                10px 12px;
+
+            outline:
+                none;
+        }
+
+
+        .toolbar input {
+
+            flex:
+                1;
+
+            min-width:
+                260px;
+        }
+
+
+        /* =====================================================
+           TABLE
+        ====================================================== */
+
+        .table-card {
+
+            background:
+                #071c31;
+
+            border:
+                1px solid #123b5c;
+
+            border-radius:
+                11px;
+
+            overflow:
+                hidden;
+        }
+
+
+        .table-wrapper {
+
+            overflow-x:
+                auto;
+        }
+
+
+        table {
+
+            width:
+                100%;
+
+            border-collapse:
+                collapse;
+
+            min-width:
+                1050px;
+        }
+
+
+        th {
+
+            background:
+                #0b2239;
+
+            color:
+                #c6d5e0;
+
+            font-size:
+                12px;
+
+            padding:
+                14px;
+
+            text-align:
+                left;
+        }
+
+
+        td {
+
+            padding:
+                14px;
+
+            border-bottom:
+                1px solid #123b5c;
+
+            font-size:
+                12px;
+        }
+
+
+        tbody tr:hover {
+
+            background:
+                #0b2944;
+        }
+
+
+        .ioc {
+
+            color:
+                #38bdf8;
+
+            font-weight:
+                bold;
+
+            word-break:
+                break-all;
+        }
+
+
+        /* =====================================================
+           STATUS
+        ====================================================== */
+
+        .status {
+
+            display:
+                inline-block;
+
+            padding:
+                5px 9px;
+
+            border-radius:
+                14px;
+
+            font-size:
+                10px;
+
+            font-weight:
+                bold;
+        }
+
+
+        .status-active {
+
+            background:
+                #dcfce7;
+
+            color:
+                #15803d;
+        }
+
+
+        .status-paused {
+
+            background:
+                #fef3c7;
+
+            color:
+                #a16207;
+        }
+
+
+        /* =====================================================
+           RISK
+        ====================================================== */
+
+        .risk {
+
+            display:
+                inline-block;
+
+            padding:
+                5px 9px;
+
+            border-radius:
+                14px;
+
+            font-size:
+                10px;
+
+            font-weight:
+                bold;
+        }
+
+
+        .risk-low {
+
+            background:
+                #dcfce7;
+
+            color:
+                #15803d;
+        }
+
+
+        .risk-medium {
+
+            background:
+                #fef9c3;
+
+            color:
+                #a16207;
+        }
+
+
+        .risk-suspicious {
+
+            background:
+                #ffedd5;
+
+            color:
+                #c2410c;
+        }
+
+
+        .risk-high {
+
+            background:
+                #fee2e2;
+
+            color:
+                #dc2626;
+        }
+
+
+        .risk-critical {
+
+            background:
+                #fce7f3;
+
+            color:
+                #be185d;
+        }
+
+
+        /* =====================================================
+           BUTTONS
+        ====================================================== */
+
+        .btn {
+
+            border:
+                none;
+
+            border-radius:
+                5px;
+
+            padding:
+                7px 10px;
+
+            cursor:
+                pointer;
+
+            color:
+                white;
+
+            font-size:
+                11px;
+
+            margin-right:
+                5px;
+        }
+
+
+        .btn-toggle {
+
+            background:
+                #2563eb;
+        }
+
+
+        .btn-delete {
+
+            background:
+                #dc2626;
+        }
+
+
+        .btn-investigate {
+
+            display:
+                inline-block;
+
+            background:
+                #059669;
+
+            color:
+                white;
+
+            text-decoration:
+                none;
+
+            padding:
+                7px 10px;
+
+            border-radius:
+                5px;
+
+            font-size:
+                11px;
+        }
+
+
+        /* =====================================================
+           EMPTY
+        ====================================================== */
+
+        .empty {
+
+            text-align:
+                center;
+
+            color:
+                #8fa9bd;
+
+            padding:
+                35px;
+        }
+
+
+        @media (
+            max-width: 850px
+        ) {
+
+            .summary-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .header {
+
+                flex-direction:
+                    column;
+
+                gap:
+                    14px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+
+<body>
+
+
+<header class="header">
+
+    <div class="brand">
+
+        OSINT
+        <span>
+            Threat Intelligence
+        </span>
+
+    </div>
+
+
+    <nav class="nav">
+
+        <a href="/">
+            Investigation
+        </a>
+
+        <a href="/dashboard/">
+            Dashboard
+        </a>
+
+        <a href="/history/">
+            History
+        </a>
+
+        <a href="/threat-graph/">
+            Threat Graph
+        </a>
+
+        <a href="/watchlist/">
+            ⭐ Watchlist
+        </a>
+        <a href="/alerts/">
+    🚨 Alerts
+</a>
+
+    </nav>
+
+</header>
+
+
+
+<div class="container">
+
+
+    <h1 class="page-title">
+
+        ⭐ IOC Watchlist
+
+    </h1>
+
+
+    <p class="subtitle">
+
+        Important indicators selected
+        for continuous monitoring.
+
+    </p>
+
+
+
+    <!-- =====================================================
+         SUMMARY
+    ====================================================== -->
+
+    <div class="summary-grid">
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+
+                TOTAL WATCHED IOCS
+
+            </div>
+
+            <div
+                class="summary-value"
+                id="totalCount"
+            >
+
+                {{ watchlist_items | length }}
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+
+                ACTIVE MONITORING
+
+            </div>
+
+            <div
+                class="summary-value"
+                id="activeCount"
+            >
+
+                0
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+
+                HIGH / CRITICAL
+
+            </div>
+
+            <div
+                class="summary-value"
+                id="dangerCount"
+            >
+
+                0
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         FILTERS
+    ====================================================== -->
+
+    <div class="toolbar">
+
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search IOC..."
+        >
+
+
+        <select id="typeFilter">
+
+            <option value="">
+                All IOC Types
+            </option>
+
+            <option value="IP Address">
+                IP Address
+            </option>
+
+            <option value="Domain">
+                Domain
+            </option>
+
+            <option value="URL">
+                URL
+            </option>
+
+            <option value="MD5 Hash">
+                MD5 Hash
+            </option>
+
+            <option value="SHA1 Hash">
+                SHA1 Hash
+            </option>
+
+            <option value="SHA256 Hash">
+                SHA256 Hash
+            </option>
+
+        </select>
+
+
+        <select id="statusFilter">
+
+            <option value="">
+                All Status
+            </option>
+
+            <option value="ACTIVE">
+                ACTIVE
+            </option>
+
+            <option value="PAUSED">
+                PAUSED
+            </option>
+
+        </select>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         TABLE
+    ====================================================== -->
+
+    <div class="table-card">
+
+
+        <div class="table-wrapper">
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            #
+                        </th>
+
+                        <th>
+                            IOC
+                        </th>
+
+                        <th>
+                            Type
+                        </th>
+
+                        <th>
+                            Risk
+                        </th>
+
+                        <th>
+                            Risk Score
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Last Checked
+                        </th>
+
+                        <th>
+                            Added
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for item in watchlist_items %}
+
+
+                    <tr
+                        class="watch-row"
+
+                        data-ioc="{{ item.ioc }}"
+
+                        data-type="{{ item.ioc_type }}"
+
+                        data-status="{{ item.status }}"
+
+                        data-risk="{{ item.last_risk_level }}"
+                    >
+
+
+                        <td>
+
+                            {{ loop.index }}
+
+                        </td>
+
+
+                        <td class="ioc">
+
+                            {{ item.ioc }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item.ioc_type }}
+
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="
+                                    risk
+                                    risk-{{
+                                        item.last_risk_level
+                                        | lower
+                                    }}
+                                "
+                            >
+
+                                {{
+                                    item.last_risk_level
+                                }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.last_risk_score
+                            }}/100
+
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="
+                                    status
+                                    status-{{
+                                        item.status
+                                        | lower
+                                    }}
+                                "
+                            >
+
+                                {{ item.status }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.last_checked
+                                or 'Never'
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                item.created_at
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+
+                            <form
+                                method="POST"
+                                action="/watchlist/toggle/{{ item.id }}"
+                                style="display:inline;"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="
+                                        btn
+                                        btn-toggle
+                                    "
+                                >
+
+                                    {% if item.status == 'ACTIVE' %}
+
+                                        Pause
+
+                                    {% else %}
+
+                                        Activate
+
+                                    {% endif %}
+
+                                </button>
+
+                            </form>
+
+
+                            <form
+                                method="POST"
+                                action="/watchlist/delete/{{ item.id }}"
+                                style="display:inline;"
+                                onsubmit="
+                                    return confirm(
+                                        'Remove this IOC from watchlist?'
+                                    );
+                                "
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="
+                                        btn
+                                        btn-delete
+                                    "
+                                >
+
+                                    Delete
+
+                                </button>
+
+                            </form>
+
+
+                        </td>
+
+
+                    </tr>
+
+
+                    {% endfor %}
+
+
+                </tbody>
+
+            </table>
+
+
+            {% if not watchlist_items %}
+
+                <div class="empty">
+
+                    No IOCs have been added
+                    to the watchlist yet.
+
+                </div>
+
+            {% endif %}
+
+
+            <div
+                class="empty"
+                id="noResults"
+                style="display:none;"
+            >
+
+                No matching watchlist items.
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+
+const searchInput =
+    document.getElementById(
+        "searchInput"
+    );
+
+
+const typeFilter =
+    document.getElementById(
+        "typeFilter"
+    );
+
+
+const statusFilter =
+    document.getElementById(
+        "statusFilter"
+    );
+
+
+const noResults =
+    document.getElementById(
+        "noResults"
+    );
+
+
+function updateWatchlist() {
+
+
+    const search =
+        searchInput
+        .value
+        .toLowerCase()
+        .trim();
+
+
+    const selectedType =
+        typeFilter.value;
+
+
+    const selectedStatus =
+        statusFilter.value;
+
+
+    const rows =
+        document.querySelectorAll(
+            ".watch-row"
+        );
+
+
+    let visible =
+        0;
+
+
+    let active =
+        0;
+
+
+    let danger =
+        0;
+
+
+    rows.forEach(
+
+        function(row) {
+
+
+            const ioc =
+                (
+                    row.dataset.ioc
+                    || ""
+                )
+                .toLowerCase();
+
+
+            const type =
+                row.dataset.type
+                || "";
+
+
+            const status =
+                row.dataset.status
+                || "";
+
+
+            const risk =
+                (
+                    row.dataset.risk
+                    || ""
+                )
+                .toUpperCase();
+
+
+            const matchesSearch =
+                !search
+                ||
+                ioc.includes(
+                    search
+                );
+
+
+            const matchesType =
+                !selectedType
+                ||
+                type
+                === selectedType;
+
+
+            const matchesStatus =
+                !selectedStatus
+                ||
+                status
+                === selectedStatus;
+
+
+            if (
+                matchesSearch
+                &&
+                matchesType
+                &&
+                matchesStatus
+            ) {
+
+                row.style.display =
+                    "";
+
+                visible++;
+
+            }
+
+            else {
+
+                row.style.display =
+                    "none";
+
+            }
+
+
+            if (
+                status
+                === "ACTIVE"
+            ) {
+
+                active++;
+
+            }
+
+
+            if (
+                risk === "HIGH"
+                ||
+                risk === "CRITICAL"
+            ) {
+
+                danger++;
+
+            }
+
+        }
+
+    );
+
+
+    document
+    .getElementById(
+        "activeCount"
+    )
+    .textContent =
+        active;
+
+
+    document
+    .getElementById(
+        "dangerCount"
+    )
+    .textContent =
+        danger;
+
+
+    if (
+        visible === 0
+        &&
+        rows.length > 0
+    ) {
+
+        noResults.style.display =
+            "block";
+
+    }
+
+    else {
+
+        noResults.style.display =
+            "none";
+
+    }
+
+}
+
+
+
+searchInput.addEventListener(
+    "input",
+    updateWatchlist
+);
+
+
+typeFilter.addEventListener(
+    "change",
+    updateWatchlist
+);
+
+
+statusFilter.addEventListener(
+    "change",
+    updateWatchlist
+);
+
+
+updateWatchlist();
+
+
+</script>
+
+
+</body>
+
+</html>
