@@ -1,5 +1,7 @@
 from flask import Blueprint, send_file, Response
+
 from database.db import get_connection
+
 from services.report_service import (
     generate_pdf_report,
     generate_csv_report
@@ -13,9 +15,7 @@ reports_bp = Blueprint(
 )
 
 
-def get_investigation_data(
-    investigation_id
-):
+def get_investigation_data(investigation_id):
 
     connection = None
     cursor = None
@@ -41,6 +41,8 @@ def get_investigation_data(
                 asn,
                 risk_score,
                 risk_level,
+                ml_prediction,
+                ml_confidence,
                 created_at
             FROM investigations
             WHERE id = %s
@@ -70,9 +72,24 @@ def get_investigation_data(
             "asn": row[10],
             "risk_score": row[11],
             "risk_level": row[12],
-            "created_at": row[13],
-            "ml_prediction": "N/A",
-            "ml_confidence": "N/A",
+
+            # ML data from database
+            "ml_prediction": (
+                row[13]
+                if row[13] is not None
+                else "N/A"
+            ),
+
+            "ml_confidence": (
+                row[14]
+                if row[14] is not None
+                else "N/A"
+            ),
+
+            "created_at": row[15],
+
+            # VirusTotal details are not currently
+            # stored in the investigations table
             "virustotal": {}
         }
 
@@ -107,9 +124,7 @@ def get_investigation_data(
 @reports_bp.route(
     "/pdf/<int:investigation_id>"
 )
-def download_pdf(
-    investigation_id
-):
+def download_pdf(investigation_id):
 
     data = get_investigation_data(
         investigation_id
@@ -141,9 +156,7 @@ def download_pdf(
 @reports_bp.route(
     "/csv/<int:investigation_id>"
 )
-def download_csv(
-    investigation_id
-):
+def download_csv(investigation_id):
 
     data = get_investigation_data(
         investigation_id
