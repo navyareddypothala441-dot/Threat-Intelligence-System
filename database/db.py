@@ -1,14 +1,19 @@
+import os
 import psycopg2
 
 
-DB_CONFIG = {
-    "host": "localhost",
-    "port": 5432,
-    "database": "osint_threat_intelligence",
-    "user": "postgres",
-    "password": "2003"
-}
-
-
 def get_connection():
-    return psycopg2.connect(**DB_CONFIG)
+    database_url = os.environ.get("DATABASE_URL")
+
+    if database_url:
+        # Render / production database
+        return psycopg2.connect(database_url)
+
+    # Local development database
+    return psycopg2.connect(
+        host="localhost",
+        port=5432,
+        database="osint_threat_intelligence",
+        user="postgres",
+        password="2003"
+    )
