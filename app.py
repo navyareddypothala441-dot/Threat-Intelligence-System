@@ -429,246 +429,138 @@ def ensure_list(value):
 
 
 def save_investigation(
-
     ioc,
-
     ioc_type,
-
     normalized,
-
     risk_score,
-
     risk_level,
-
+    ml_prediction=None,
+    ml_confidence=None,
 ):
 
-
-
     connection = None
-
     cursor = None
-
-
 
     try:
 
-
-
         normalized = ensure_dict(normalized)
 
-
-
         latitude = safe_float(
-
             normalized.get("latitude")
-
         )
-
-
 
         longitude = safe_float(
-
             normalized.get("longitude")
-
         )
-
-
 
         asn = safe_int(
-
             normalized.get("asn"),
-
             None
-
         )
-
-
 
         risk_score_db = safe_int(
-
             risk_score,
-
             0
-
         )
 
-
-
         connection = get_connection()
-
         cursor = connection.cursor()
 
-
-
         cursor.execute(
-
             """
-
             INSERT INTO investigations
-
             (
-
                 ioc,
-
                 ioc_type,
-
                 country,
-
                 region,
-
                 city,
-
                 latitude,
-
                 longitude,
-
                 isp,
-
                 organization,
-
                 asn,
-
                 risk_score,
-
-                risk_level
-
+                risk_level,
+                ml_prediction,
+                ml_confidence
             )
 
             VALUES
-
             (
-
                 %s,
-
                 %s,
-
                 %s,
-
                 %s,
-
                 %s,
-
                 %s,
-
                 %s,
-
                 %s,
-
                 %s,
-
                 %s,
-
                 %s,
-
+                %s,
+                %s,
                 %s
-
             )
 
             RETURNING id
-
             """,
 
             (
-
                 ioc,
-
                 ioc_type,
-
                 normalized.get("country"),
-
                 normalized.get("region"),
-
                 normalized.get("city"),
-
                 latitude,
-
                 longitude,
-
                 normalized.get("isp"),
-
                 normalized.get("organization"),
-
                 asn,
-
                 risk_score_db,
-
                 risk_level,
-
+                ml_prediction,
+                ml_confidence,
             ),
-
         )
 
-
-
         row = cursor.fetchone()
-
         investigation_id = row[0] if row else None
 
-
-
         connection.commit()
-
-
 
         print(
             "Investigation saved successfully. ID:",
             investigation_id
         )
 
-
-
         return investigation_id
-
-
 
     except Exception as e:
 
-
-
         print("Database save error:", e)
 
-
-
         if connection:
-
             try:
-
                 connection.rollback()
-
             except Exception:
-
                 pass
-
-
 
         return False
 
-
-
     finally:
 
-
-
         if cursor:
-
             try:
-
                 cursor.close()
-
             except Exception:
-
                 pass
 
-
-
         if connection:
-
             try:
-
                 connection.close()
-
             except Exception:
-
                 pass
 
 
@@ -3557,28 +3449,24 @@ def investigate():
 
 
 
+    ml_prediction = None
+    ml_confidence = None
+
+    if isinstance(ml_result, dict) and ml_result.get("available"):
+        ml_prediction = (
+            ml_result.get("prediction")
+            or ml_result.get("risk")
+        )
+        ml_confidence = ml_result.get("confidence")
+
     investigation_id = save_investigation(
-
-
-
         ioc=ioc,
-
-
-
         ioc_type=ioc_type,
-
-
-
         normalized=normalized,
-
-
-
         risk_score=risk_score,
-
-
-
         risk_level=risk_level,
-
+        ml_prediction=ml_prediction,
+        ml_confidence=ml_confidence,
     )
 
 
